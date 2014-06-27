@@ -67,12 +67,13 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
 
 .. decorator:: with_init(attrs, defaults=None)
 
-   A class decorator that wraps the ``__init__`` method of a class and sets
-   *attrs* using passed keyword arguments before calling the original
-   ``__init__``.
+   A class decorator that wraps the ``__init__`` method of a class and sets *attrs* using passed *keyword arguments* before calling the original ``__init__``.
 
    Those keyword arguments that are used, are removed from the `kwargs` that is passed into your original ``__init__``.
    Optionally, a dictionary of default values for some of *attrs* can be passed too.
+
+   Please note that the generated initializer explicitly does *not* support positional arguments.
+   Those are *always* passed to the existing ``__init__`` unaltered.
 
    .. doctest::
 
@@ -91,7 +92,7 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
       >>> IClass()
       Traceback (most recent call last):
         ...
-      ValueError: Missing value for 'a'.
+      ValueError: Missing keyword value for 'a'.
       >>> IClass(a=1, b=3)  # the custom __init__ is called after the attributes are initialized
       Traceback (most recent call last):
         ...
@@ -109,10 +110,7 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
 
 .. decorator:: attributes(attrs, defaults=None, create_init=True)
 
-   A convenience class decorator that combines :func:`with_cmp`,
-   :func:`with_repr`, and optionally :func:`with_init` to avoid code
-   duplication.
-
+   A convenience class decorator that combines :func:`with_cmp`, :func:`with_repr`, and optionally :func:`with_init` to avoid code duplication.
 
    See :doc:`examples` for ``@attributes`` in action!
 

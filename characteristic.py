@@ -5,7 +5,7 @@ Say 'yes' to types but 'no' to typing!
 """
 
 
-__version__ = "0.2.0dev"
+__version__ = "14.0.0dev"
 __author__ = "Hynek Schlawack"
 __license__ = "MIT"
 __copyright__ = "Copyright 2014 Hynek Schlawack"
@@ -123,7 +123,9 @@ def with_init(attrs, defaults=None):
                 try:
                     v = defaults[a]
                 except KeyError:
-                    raise ValueError("Missing value for '{0}'.".format(a))
+                    raise ValueError(
+                        "Missing keyword value for '{0}'.".format(a)
+                    )
             setattr(self, a, v)
         self.__original_init__(*args, **kw)
 
