@@ -12,8 +12,8 @@ Examples
 
 .. doctest::
 
-   >>> from characteristic import attributes
-   >>> @attributes(["a", "b",])
+   >>> from characteristic import Attribute, attributes
+   >>> @attributes(["a", "b"])
    ... class C(object):
    ...     pass
    >>> obj1 = C(a=1, b="abc")
@@ -27,10 +27,10 @@ Examples
    >>> obj3 = C(a=1, b="bca")
    >>> obj3 > obj1
    True
-   >>> @attributes(["a", "b", "c",], defaults={"c": 3})
+   >>> @attributes(["a", "b", Attribute("c", default_factory=list)])
    ... class CWithDefaults(object):
    ...     pass
    >>> obj4 = CWithDefaults(a=1, b=2)
-   >>> obj5 = CWithDefaults(a=1, b=2, c=3)
+   >>> obj5 = CWithDefaults(a=1, b=2, c=[])
    >>> obj4 == obj5
    True
