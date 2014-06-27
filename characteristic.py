@@ -15,11 +15,10 @@ def with_cmp(attrs):
     """
     A class decorator that adds comparison methods based on *attrs*.
 
-    Two instances are compared as if the respective values of *attrs* were
-    tuples.
+    For that, each class is treated like a ``tuple`` of the values of *attrs*.
 
     :param attrs: Attributes to work with.
-    :type attrs: `list` of native strings
+    :type attrs: ``list`` of native strings
     """
     def attrs_to_tuple(obj):
         """
@@ -82,11 +81,11 @@ def with_cmp(attrs):
 
 def with_repr(attrs):
     """
-    A class decorator that adds a human-friendly ``__repr__`` method that
-    returns a sensible representation based on *attrs*.
+    A class decorator that adds a human readable ``__repr__`` method to your
+    class using *attrs*.
 
     :param attrs: Attributes to work with.
-    :type attrs: Iterable of native strings.
+    :type attrs: ``list`` of native strings
     """
     def repr_(self):
         return "<{0}({1})>".format(
@@ -103,14 +102,22 @@ def with_repr(attrs):
 
 def with_init(attrs, defaults=None):
     """
-    A class decorator that wraps the __init__ method of a class and sets
-    *attrs* first using keyword arguments.
+    A class decorator that wraps the ``__init__`` method of a class and sets
+    *attrs* using passed *keyword arguments* before calling the original
+    ``__init__``.
+
+    Those keyword arguments that are used, are removed from the `kwargs` that
+    is passed into your original ``__init__``.  Optionally, a dictionary of
+    default values for some of *attrs* can be passed too.
 
     :param attrs: Attributes to work with.
-    :type attrs: Iterable of native strings.
+    :type attrs: ``list`` of native strings
 
     :param defaults: Default values if attributes are omitted on instantiation.
-    :type defaults: `dict` or `None`
+    :type defaults: ``dict`` or ``None``
+
+    :raises ValueError: If the value for a non-optional attribute hasn't been
+        passed as a keyword argument.
     """
     if defaults is None:
         defaults = {}
@@ -143,14 +150,19 @@ def attributes(attrs, defaults=None, create_init=True):
     :func:`with_repr`, and optionally :func:`with_init` to avoid code
     duplication.
 
+    See :doc:`examples` for ``@attributes`` in action!
+
     :param attrs: Attributes to work with.
-    :type attrs: Iterable of native strings.
+    :type attrs: ``list`` of native strings.
 
     :param defaults: Default values if attributes are omitted on instantiation.
-    :type defaults: `dict` or `None`
+    :type defaults: ``dict`` or ``None``
 
-    :param create_init: Also apply :func:`with_init` (default: `True`)
-    :type create_init: `bool`
+    :param create_init: Also apply :func:`with_init` (default: ``True``)
+    :type create_init: ``bool``
+
+    :raises ValueError: If the value for a non-optional attribute hasn't been
+        passed as a keyword argument.
     """
     def wrap(cl):
         cl = with_cmp(attrs)(with_repr(attrs)(cl))

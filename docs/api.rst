@@ -10,9 +10,7 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
 .. currentmodule:: characteristic
 
 
-.. decorator:: with_repr(attrs)
-
-   A class decorator that adds a human readable ``__repr__`` method to your class using *attrs*.
+.. autofunction:: with_repr
 
    .. doctest::
 
@@ -27,15 +25,7 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
       <RClass(a=42, b='abc')>
 
 
-   :param attrs: Attributes to work with.
-   :type attrs: `list` of native strings
-
-
-.. decorator:: with_cmp(attrs)
-
-   A class decorator that adds comparison methods based on *attrs*.
-
-   For that, each class is treated like a `tuple` of the values of *attrs*.
+.. autofunction:: with_cmp
 
    .. doctest::
 
@@ -61,19 +51,7 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
       True
 
 
-   :param attrs: Attributes to work with.
-   :type attrs: `list` of native strings
-
-
-.. decorator:: with_init(attrs, defaults=None)
-
-   A class decorator that wraps the ``__init__`` method of a class and sets *attrs* using passed *keyword arguments* before calling the original ``__init__``.
-
-   Those keyword arguments that are used, are removed from the `kwargs` that is passed into your original ``__init__``.
-   Optionally, a dictionary of default values for some of *attrs* can be passed too.
-
-   Please note that the generated initializer explicitly does *not* support positional arguments.
-   Those are *always* passed to the existing ``__init__`` unaltered.
+.. autofunction:: with_init
 
    .. doctest::
 
@@ -98,29 +76,11 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
         ...
       ValueError: 'b' must be 2!
 
+   .. note::
 
-   :param attrs: Attributes to work with.
-   :type attrs: `list` of native strings
-
-   :param defaults: Default values if attributes are omitted on instantiation.
-   :type defaults: `dict` or `None`
-
-   :raises ValueError: If the value for a non-optional attribute hasn't been passed.
+    The generated initializer explicitly does *not* support positional
+    arguments.  Those are *always* passed to the existing ``__init__``
+    unaltered.
 
 
-.. decorator:: attributes(attrs, defaults=None, create_init=True)
-
-   A convenience class decorator that combines :func:`with_cmp`, :func:`with_repr`, and optionally :func:`with_init` to avoid code duplication.
-
-   See :doc:`examples` for ``@attributes`` in action!
-
-   :param attrs: Attributes to work with.
-   :type attrs: Iterable of native strings.
-
-   :param defaults: Default values if attributes are omitted on instantiation.
-   :type defaults: `dict` or `None`
-
-   :param create_init: Also apply :func:`with_init` (default: `True`)
-   :type create_init: `bool`
-
-   :raises ValueError: If the value for a non-optional attribute hasn't been passed.
+.. autofunction:: attributes
