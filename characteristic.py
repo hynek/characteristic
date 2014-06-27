@@ -10,6 +10,28 @@ __author__ = "Hynek Schlawack"
 __license__ = "MIT"
 __copyright__ = "Copyright 2014 Hynek Schlawack"
 
+__all__ = [
+    "Attribute",
+    "attributes",
+    "with_cmp",
+    "with_init",
+    "with_repr",
+]
+
+
+class Attribute(object):
+    """
+    A representation of an attribute.
+
+    In the simplest case, it only consists of a name but more advanced
+    properties like default values are possible too.
+
+    :param name: Name of the attribute.
+    :type name: native string
+    """
+    def __init__(self, name):
+        self.name = name
+
 
 def with_cmp(attrs):
     """
@@ -19,7 +41,7 @@ def with_cmp(attrs):
     But only instances of *identical* classes are compared!
 
     :param attrs: Attributes to work with.
-    :type attrs: ``list`` of native strings
+    :type attrs: ``list`` of native strings or :class:`Attribute`\ s.
     """
     def attrs_to_tuple(obj):
         """

@@ -3,11 +3,21 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from characteristic import (
+    Attribute,
     attributes,
     with_cmp,
     with_init,
     with_repr,
 )
+
+
+class TestAttribute(object):
+    def test_init(self):
+        """
+        __init__ initializes all attributes.
+        """
+        a = Attribute("foo")
+        assert "foo" == a.name
 
 
 @with_cmp(["a", "b"])

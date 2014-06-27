@@ -84,3 +84,6 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
 
 
 .. autofunction:: attributes
+
+
+.. autoclass:: Attribute
