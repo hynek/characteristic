@@ -123,17 +123,18 @@ def with_init(attrs, defaults=None):
         defaults = {}
 
     def init(self, *args, **kw):
-        for a in attrs:
-            try:
-                v = kw.pop(a)
-            except KeyError:
-                try:
-                    v = defaults[a]
-                except KeyError:
-                    raise ValueError(
-                        "Missing keyword value for '{0}'.".format(a)
-                    )
-            setattr(self, a, v)
+        try:
+            for a in attrs:
+                if a in defaults:
+                    v = kw.pop(a, defaults[a])
+                else:
+                    v = kw.pop(a)
+                setattr(self, a, v)
+        except KeyError as e:
+            raise ValueError(
+                "Missing keyword value for '{0}'.".format(e.args[0])
+            )
+
         self.__original_init__(*args, **kw)
 
     def wrap(cl):
