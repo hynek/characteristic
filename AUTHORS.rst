@@ -14,3 +14,4 @@ The following folks helped forming ``characteristic`` into what it is now:
 - `Glyph <https://github.com/glyph>`_
 - `Itamar Turner-Trauring <https://github.com/itamarst>`_
 - `Jean-Paul Calderone <https://github.com/exarkun>`_
+- `Richard Wall <https://github.com/wallrj>`_
