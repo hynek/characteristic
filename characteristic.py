@@ -188,7 +188,7 @@ def with_init(attrs, defaults=None):
 
 
 _ERR_MIXING = ("Mixing of Attribute()-style and decorator-style definition of "
-               "attributesis prohibited.")
+               "attributes is prohibited.")
 
 
 def attributes(attrs_or_class=None, defaults=None, create_init=True):
@@ -199,10 +199,14 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
 
     See :doc:`examples` for ``@attributes`` in action!
 
+    It can be used both for defining attributes using :class:`Attribute()`s and
+    the `attrs` argument.  Mixing is not allowed though.
+
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of native strings.
 
     :param defaults: Default values if attributes are omitted on instantiation.
+        Can be only used together with `attrs`.
     :type defaults: ``dict`` or ``None``
 
     :param create_init: Also apply :func:`with_init` (default: ``True``)
