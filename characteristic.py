@@ -11,6 +11,14 @@ __license__ = "MIT"
 __copyright__ = "Copyright 2014 Hynek Schlawack"
 
 
+NOTHING = object()
+
+
+class Attribute(object):
+    def __init__(self, default=NOTHING):
+        self.default = default
+
+
 def with_cmp(attrs):
     """
     A class decorator that adds comparison methods based on *attrs*.
@@ -175,7 +183,7 @@ def with_init(attrs, defaults=None):
     return wrap
 
 
-def attributes(attrs, defaults=None, create_init=True):
+def attributes(attrs_or_class=None, defaults=None, create_init=True):
     """
     A convenience class decorator that combines :func:`with_cmp`,
     :func:`with_repr`, and optionally :func:`with_init` to avoid code
@@ -195,10 +203,56 @@ def attributes(attrs, defaults=None, create_init=True):
     :raises ValueError: If the value for a non-optional attribute hasn't been
         passed as a keyword argument.
     """
-    def wrap(cl):
-        cl = with_cmp(attrs)(with_repr(attrs)(cl))
+
+    # attrs_or class type depends on the usage of the decorator.
+    # It's a class if it's used as `@attributes` but ``None`` (or a value
+    # passed) # if used as `@attributes()`.
+    if isinstance(attrs_or_class, type):
+        a = _get_attributes(attrs_or_class)
+        new_cl = with_cmp(a.attrs)(with_repr(a.attrs)(attrs_or_class))
         if create_init is True:
-            return with_init(attrs, defaults=defaults)(cl)
-        else:
-            return cl
+            new_cl = with_init(a.attrs, defaults=a.defaults)(new_cl)
+
+        return new_cl
+    else:
+        def wrap(cl):
+            # nonlocal would be awesome :(
+            if defaults is None:
+                defaults_ = {}
+            else:
+                defaults_ = defaults
+
+            if attrs_or_class is None:
+                a = _get_attributes(cl)
+                attrs = a.attrs
+                defaults_.update(a.defaults)
+            else:
+                attrs = attrs_or_class
+
+            new_cl = with_cmp(attrs)(with_repr(attrs)(cl))
+            if create_init is True:
+                return with_init(attrs, defaults=defaults_)(new_cl)
+            else:
+                return new_cl
+
     return wrap
+
+
+class _Attributes(object):
+    def __init__(self, attrs, defaults):
+        self.attrs = attrs
+        self.defaults = defaults
+
+
+def _get_attributes(cl):
+    """
+    :rtype: _Attributes
+    """
+    attrs = []
+    defaults = {}
+    for name, instance in cl.__dict__.items():
+        if isinstance(instance, Attribute):
+            attrs.append(name)
+            if instance.default is not NOTHING:
+                defaults[name] = instance.default
+    return _Attributes(attrs, defaults)

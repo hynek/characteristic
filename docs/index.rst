@@ -13,13 +13,15 @@ Teaser
 
 .. doctest::
 
-   >>> from characteristic import attributes
-   >>> @attributes(["a", "b"])
+   >>> from characteristic import Attribute, attributes
+   >>> @attributes
    ... class AClass(object):
-   ...     pass
-   >>> @attributes(["a", "b"], defaults={"b": "abc"})
+   ...     a = Attribute()
+   ...     b = Attribute()
+   >>> @attributes
    ... class AnotherClass(object):
-   ...     pass
+   ...     a = Attribute()
+   ...     b = Attribute(default="abc")
    >>> obj1 = AClass(a=1, b="abc")
    >>> obj2 = AnotherClass(a=1, b="abc")
    >>> obj3 = AnotherClass(a=1)

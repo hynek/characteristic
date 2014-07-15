@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from characteristic import (
+    Attribute,
     attributes,
     with_cmp,
     with_init,
@@ -245,3 +246,56 @@ class TestAttributes(object):
         obj = MagicWithInitC(a=1, b=2)
         assert 1 == obj.a
         assert 2 == obj.b
+
+    def test_defaults(self):
+        """
+        Defaults keep working.
+        """
+        @attributes(["a"], defaults={"a": 42})
+        class Class(object):
+            pass
+
+        assert 42 == Class().a
+
+
+class TestAttribute(object):
+    def test_converts_into_attrs_list(self):
+        """
+        Specifying using class variables works.
+        """
+        @attributes()
+        class Class(object):
+            a = Attribute()
+            b = Attribute()
+
+        i = Class(a=42, b=23)
+        assert 42 == i.a
+        assert 23 == i.b
+
+    def test_defaults(self):
+        """
+        defaults work.
+        """
+        @attributes()
+        class Class(object):
+            a = Attribute(default=23)
+
+        assert 23 == Class().a
+        assert 46 == Class(a=46).a
+
+    def test_works_without_parens(self):
+        """
+        @attributes
+        class C(object)):
+
+        is equivalent to
+
+        @attributes()
+        class C(object):
+        """
+        @attributes
+        class Class(object):
+            a = Attribute()
+
+        i = Class(a=42)
+        assert 42 == i.a

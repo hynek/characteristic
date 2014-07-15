@@ -4,7 +4,7 @@ Examples
 ========
 
 
-``@attributes([attr1, attr2, …])`` enhances your class by:
+``@attributes`` enhances your class by:
 
 - a nice ``__repr__``,
 - comparison methods that compare instances as if they were tuples of their attributes,
@@ -13,10 +13,11 @@ Examples
 
 .. doctest::
 
-   >>> from characteristic import attributes
-   >>> @attributes(["a", "b",])
+   >>> from characteristic import Attribute, attributes
+   >>> @attributes
    ... class C(object):
-   ...     pass
+   ...     a = Attribute()
+   ...     b = Attribute()
    >>> obj1 = C(a=1, b="abc")
    >>> obj1
    <C(a=1, b='abc')>
@@ -28,9 +29,11 @@ Examples
    >>> obj3 = C(a=1, b="bca")
    >>> obj3 > obj1
    True
-   >>> @attributes(["a", "b", "c",], defaults={"c": 3})
+   >>> @attributes
    ... class CWithDefaults(object):
-   ...     pass
+   ...     a = Attribute()
+   ...     b = Attribute()
+   ...     c = Attribute(default=3)
    >>> obj4 = CWithDefaults(a=1, b=2)
    >>> obj5 = CWithDefaults(a=1, b=2, c=3)
    >>> obj4 == obj5
