@@ -4,7 +4,7 @@ Examples
 ========
 
 
-``@attributes`` enhances your class by:
+:func:`@attributes <characteristic.attributes>` together with the definition of the attributes using class attributes enhances your class by:
 
 - a nice ``__repr__``,
 - comparison methods that compare instances as if they were tuples of their attributes,
