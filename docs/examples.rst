@@ -3,12 +3,11 @@
 Examples
 ========
 
-
-``@attributes([attr1, attr2, …])`` enhances your class by:
+:func:`@attributes <characteristic.attributes>` together with the definition of the attributes using class attributes enhances your class by:
 
 - a nice ``__repr__``,
 - comparison methods that compare instances as if they were tuples of their attributes,
-- and – optionally but by default – an initializer that uses the keyword arguments to initialize the specified attributes before running the class’ own initializer (you just write the validator!).
+- and -- optionally but by default -- an initializer that uses the keyword arguments to initialize the specified attributes before running the class’ own initializer (you just write the validator!).
 
 
 .. doctest::
