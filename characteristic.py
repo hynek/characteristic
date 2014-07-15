@@ -27,12 +27,18 @@ def with_cmp(attrs):
         return tuple(getattr(obj, a) for a in attrs)
 
     def eq(self, other):
+        """
+        Automatically created by characteristic.
+        """
         if isinstance(other, self.__class__):
             return attrs_to_tuple(self) == attrs_to_tuple(other)
         else:
             return NotImplemented
 
     def ne(self, other):
+        """
+        Automatically created by characteristic.
+        """
         result = eq(self, other)
         if result is NotImplemented:
             return NotImplemented
@@ -40,30 +46,45 @@ def with_cmp(attrs):
             return not result
 
     def lt(self, other):
+        """
+        Automatically created by characteristic.
+        """
         if isinstance(other, self.__class__):
             return attrs_to_tuple(self) < attrs_to_tuple(other)
         else:
             return NotImplemented
 
     def le(self, other):
+        """
+        Automatically created by characteristic.
+        """
         if isinstance(other, self.__class__):
             return attrs_to_tuple(self) <= attrs_to_tuple(other)
         else:
             return NotImplemented
 
     def gt(self, other):
+        """
+        Automatically created by characteristic.
+        """
         if isinstance(other, self.__class__):
             return attrs_to_tuple(self) > attrs_to_tuple(other)
         else:
             return NotImplemented
 
     def ge(self, other):
+        """
+        Automatically created by characteristic.
+        """
         if isinstance(other, self.__class__):
             return attrs_to_tuple(self) >= attrs_to_tuple(other)
         else:
             return NotImplemented
 
     def hash_(self):
+        """
+        Automatically created by characteristic.
+        """
         return hash(attrs_to_tuple(self))
 
     def wrap(cl):
@@ -88,6 +109,9 @@ def with_repr(attrs):
     :type attrs: ``list`` of native strings
     """
     def repr_(self):
+        """
+        Automatically created by characteristic.
+        """
         return "<{0}({1})>".format(
             self.__class__.__name__,
             ", ".join(a + "=" + repr(getattr(self, a)) for a in attrs)
@@ -123,6 +147,12 @@ def with_init(attrs, defaults=None):
         defaults = {}
 
     def init(self, *args, **kw):
+        """
+        Attribute initializer automatically created by characteristic.
+
+        The original `__init__` method is renamed to `__original_init__` and
+        is called at the end.
+        """
         try:
             for a in attrs:
                 if a in defaults:
