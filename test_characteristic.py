@@ -318,3 +318,13 @@ class TestAttribute(object):
             @attributes(defaults={"a": 42})
             class Class(object):
                 a = Attribute()
+
+    def test_no_init(self):
+        """
+        no_init still works and no init is created.  That means that the
+        attributes are still `Attribute()`s as class attributes.
+        """
+        @attributes(create_init=False)
+        class Class(object):
+            a = Attribute()
+        assert isinstance(Class().a, Attribute)
