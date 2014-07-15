@@ -299,3 +299,22 @@ class TestAttribute(object):
 
         i = Class(a=42)
         assert 42 == i.a
+
+    def test_mixing_attrs(self):
+        """
+        Mixing of Attribute()-style and @attributes([]) raises ValueError.
+        """
+        with pytest.raises(ValueError):
+            @attributes(["a"])
+            class Class(object):
+                b = Attribute()
+
+    def test_mixing_defaults(self):
+        """
+        Using the defaults argument of @attributes with Attribute()-style
+        definition raises ValueError.
+        """
+        with pytest.raises(ValueError):
+            @attributes(defaults={"a": 42})
+            class Class(object):
+                a = Attribute()

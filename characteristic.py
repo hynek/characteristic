@@ -15,6 +15,10 @@ NOTHING = object()
 
 
 class Attribute(object):
+    """
+    An attribute that gets defined on classes decorated with
+    :func:`attributes`.
+    """
     def __init__(self, default=NOTHING):
         self.default = default
 
@@ -183,6 +187,10 @@ def with_init(attrs, defaults=None):
     return wrap
 
 
+_ERR_MIXING = ("Mixing of Attribute()-style and decorator-style definition of "
+               "attributesis prohibited.")
+
+
 def attributes(attrs_or_class=None, defaults=None, create_init=True):
     """
     A convenience class decorator that combines :func:`with_cmp`,
@@ -202,6 +210,8 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
 
     :raises ValueError: If the value for a non-optional attribute hasn't been
         passed as a keyword argument.
+    :raises ValueError: If the :class:`Attribute()`-as-class-attributes-style
+        and the @attributes([])-style are mixed.
     """
 
     # attrs_or class type depends on the usage of the decorator.
@@ -222,11 +232,17 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
             else:
                 defaults_ = defaults
 
+            a = _get_attributes(cl)
             if attrs_or_class is None:
-                a = _get_attributes(cl)
+                if defaults_ != {}:
+                    raise ValueError(_ERR_MIXING)
+
                 attrs = a.attrs
-                defaults_.update(a.defaults)
+                defaults_ = a.defaults
             else:
+                if a.attrs != []:
+                    raise ValueError(_ERR_MIXING)
+
                 attrs = attrs_or_class
 
             new_cl = with_cmp(attrs)(with_repr(attrs)(cl))
