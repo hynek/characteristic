@@ -328,3 +328,19 @@ class TestAttribute(object):
         class Class(object):
             a = Attribute()
         assert isinstance(Class().a, Attribute)
+
+    def test_order(self):
+        """
+        The order of the attributes is maintained.
+
+        Due to dict's nature of non-deterministic order this is difficult to
+        really test.
+        """
+        @attributes
+        class Class(object):
+            c = Attribute()
+            a = Attribute()
+            d = Attribute()
+            b = Attribute()
+
+        assert "<Class(c=3, a=1, d=4, b=2)>" == repr(Class(a=1, b=2, c=3, d=4))

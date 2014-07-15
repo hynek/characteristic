@@ -19,8 +19,12 @@ class Attribute(object):
     An attribute that gets defined on classes decorated with
     :func:`attributes`.
     """
+    counter = 0  # to be able to order the attributes correctly
+
     def __init__(self, default=NOTHING):
         self.default = default
+        Attribute.counter += 1
+        self.counter = Attribute.counter
 
 
 def with_cmp(attrs):
@@ -270,9 +274,10 @@ def _get_attributes(cl):
     """
     attrs = []
     defaults = {}
-    for name, instance in cl.__dict__.items():
-        if isinstance(instance, Attribute):
-            attrs.append(name)
-            if instance.default is not NOTHING:
-                defaults[name] = instance.default
+    for name, instance in sorted((
+            (n, i) for n, i in cl.__dict__.items() if isinstance(i, Attribute)
+    ), key=lambda e: e[1].counter):
+        attrs.append(name)
+        if instance.default is not NOTHING:
+            defaults[name] = instance.default
     return _Attributes(attrs, defaults)
