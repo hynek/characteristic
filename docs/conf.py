@@ -95,7 +95,7 @@ copyright = u'2014{0}, Hynek Schlawack'.format(
 # built documents.
 #
 # The short X.Y version.
-release = find_version("../characteristic.py")
+release = find_version("../characteristic/__init__.py")
 version = release.rsplit(u".", 1)[0]
 # The full version, including alpha/beta/rc tags.
 

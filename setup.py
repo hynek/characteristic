@@ -2,7 +2,7 @@ import codecs
 import os
 import re
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(*parts):
@@ -30,7 +30,7 @@ def find_version(*file_paths):
 
 setup(
     name="characteristic",
-    version=find_version("characteristic.py"),
+    version=find_version("characteristic/__init__.py"),
     description="Python attributes without boilerplate.",
     long_description=(read("README.rst") + "\n\n" +
                       read("AUTHORS.rst")),
@@ -38,7 +38,7 @@ setup(
     license="MIT",
     author="Hynek Schlawack",
     author_email="hs@ox.cx",
-    py_modules=["characteristic", "test_characteristic"],
+    packages=find_packages(exclude=['tests*']),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
