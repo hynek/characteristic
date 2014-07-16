@@ -2,7 +2,8 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
-from characteristic import (
+from characteristic._common import attributes
+from characteristic._legacy import (
     with_cmp,
     with_init,
     with_repr,
@@ -214,3 +215,43 @@ class TestWithInit(object):
         """
         with pytest.raises(ValueError):
             InitC(a=1)
+
+
+@attributes(["a", "b"], create_init=True)
+class MagicWithInitC(object):
+    pass
+
+
+@attributes(["a", "b"], create_init=False)
+class MagicWithoutInitC(object):
+    pass
+
+
+class TestAttributesLegacy(object):
+    def test_leaves_init_alone(self):
+        """
+        If *create_init* is `False`, leave __init__ alone.
+        """
+        obj = MagicWithoutInitC()
+        with pytest.raises(AttributeError):
+            obj.a
+        with pytest.raises(AttributeError):
+            obj.b
+
+    def test_wraps_init(self):
+        """
+        If *create_init* is `True`, build initializer.
+        """
+        obj = MagicWithInitC(a=1, b=2)
+        assert 1 == obj.a
+        assert 2 == obj.b
+
+    def test_defaults(self):
+        """
+        Defaults keep working.
+        """
+        @attributes(["a"], defaults={"a": 42})
+        class Class(object):
+            pass
+
+        assert 42 == Class().a

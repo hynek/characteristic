@@ -9,46 +9,6 @@ from characteristic._common import (
 )
 
 
-@attributes(["a", "b"], create_init=True)
-class MagicWithInitC(object):
-    pass
-
-
-@attributes(["a", "b"], create_init=False)
-class MagicWithoutInitC(object):
-    pass
-
-
-class TestAttributes(object):
-    def test_leaves_init_alone(self):
-        """
-        If *create_init* is `False`, leave __init__ alone.
-        """
-        obj = MagicWithoutInitC()
-        with pytest.raises(AttributeError):
-            obj.a
-        with pytest.raises(AttributeError):
-            obj.b
-
-    def test_wraps_init(self):
-        """
-        If *create_init* is `True`, build initializer.
-        """
-        obj = MagicWithInitC(a=1, b=2)
-        assert 1 == obj.a
-        assert 2 == obj.b
-
-    def test_defaults(self):
-        """
-        Defaults keep working.
-        """
-        @attributes(["a"], defaults={"a": 42})
-        class Class(object):
-            pass
-
-        assert 42 == Class().a
-
-
 class TestAttribute(object):
     def test_converts_into_attrs_list(self):
         """
@@ -112,13 +72,33 @@ class TestAttribute(object):
 
     def test_no_init(self):
         """
-        no_init still works and no init is created.  That means that the
-        attributes are still `Attribute()`s as class attributes.
+        create_init=False works and no __init__ is created.  That means that
+        the attributes are still `Attribute()`\ s as class attributes.
         """
         @attributes(create_init=False)
         class Class(object):
             a = Attribute()
         assert isinstance(Class().a, Attribute)
+
+    def test_no_cmp(self):
+        """
+        create_cmp=False works and not comparasition methods are created.
+        """
+        @attributes(create_cmp=False)
+        class Class(object):
+            a = Attribute()
+        eq = getattr(Class(a=1), "__eq__", None)
+        if eq is not None:
+            assert Class.__eq__ is object.__eq__
+
+    def test_no_repr(self):
+        """
+        create_repr=False works and no __repr__ method is created.
+        """
+        @attributes(create_repr=False)
+        class Class(object):
+            a = Attribute()
+        assert repr(Class(a=1)).startswith("<tests.test_common.")
 
     def test_order(self):
         """

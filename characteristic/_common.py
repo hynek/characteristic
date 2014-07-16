@@ -37,7 +37,13 @@ _ERR_MIXING = ("Mixing of Attribute()-style and decorator-style definition of "
                "attributes is prohibited.")
 
 
-def attributes(attrs_or_class=None, defaults=None, create_init=True):
+def attributes(
+    attrs_or_class=None,
+    defaults=None,
+    create_init=True,
+    create_cmp=True,
+    create_repr=True,
+):
     """
     A convenience class decorator that combines :func:`with_cmp`,
     :func:`with_repr`, and optionally :func:`with_init` to avoid code
@@ -63,7 +69,6 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
     :raises ValueError: If the :class:`Attribute()`-as-class-attributes-style
         and the @attributes([])-style are mixed.
 
-
     .. versionchanged:: 14.0
         Introduced new style of defining attributes using the
         :class:`Attribute` class and deprecated the old style.
@@ -71,25 +76,23 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
 
     # attrs_or class type depends on the usage of the decorator.
     # It's a class if it's used as `@attributes` but ``None`` (or a value
-    # passed) # if used as `@attributes()`.
+    # passed) if used as `@attributes()`.
     if isinstance(attrs_or_class, type):
         a = _get_attributes(attrs_or_class)
-        new_cl = with_cmp(a.attrs)(with_repr(a.attrs)(attrs_or_class))
+        new_cl = attrs_or_class
+        if create_cmp is True:
+            new_cl = with_cmp(a.attrs)(new_cl)
+        if create_repr is True:
+            new_cl = with_repr(a.attrs)(new_cl)
         if create_init is True:
             new_cl = with_init(a.attrs, defaults=a.defaults)(new_cl)
 
         return new_cl
     else:
         def wrap(cl):
-            # nonlocal would be awesome :(
-            if defaults is None:
-                defaults_ = {}
-            else:
-                defaults_ = defaults
-
             a = _get_attributes(cl)
             if attrs_or_class is None:
-                if defaults_ != {}:
+                if defaults is not None:
                     raise ValueError(_ERR_MIXING)
 
                 attrs = a.attrs
@@ -99,12 +102,17 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
                     raise ValueError(_ERR_MIXING)
 
                 attrs = attrs_or_class
+                defaults_ = {} if defaults is None else defaults
 
-            new_cl = with_cmp(attrs)(with_repr(attrs)(cl))
+            new_cl = cl
+            if create_cmp is True:
+                new_cl = with_cmp(attrs)(new_cl)
+            if create_repr is True:
+                new_cl = with_repr(attrs)(new_cl)
             if create_init is True:
-                return with_init(attrs, defaults=defaults_)(new_cl)
-            else:
-                return new_cl
+                new_cl = with_init(attrs, defaults=defaults_)(new_cl)
+
+            return new_cl
 
     return wrap
 
