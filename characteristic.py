@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 """
-Say 'yes' to types but 'no' to typing!
+Python attributes without boilerplate.
 """
 
 

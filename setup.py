@@ -31,7 +31,7 @@ def find_version(*file_paths):
 setup(
     name="characteristic",
     version=find_version("characteristic.py"),
-    description="Say 'yes' to types but 'no' to typing!",
+    description="Python attributes without boilerplate.",
     long_description=(read("README.rst") + "\n\n" +
                       read("AUTHORS.rst")),
     url="https://characteristic.readthedocs.org/",
