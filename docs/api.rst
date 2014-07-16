@@ -12,9 +12,12 @@ There are two approaches on how to define those attributes:
 #. By defining those attributes as class variables using instances of the :class:`Attribute` class.
    This approach has been added as of version 14.0 to make ``characteristic`` future-proof by adding more flexibility.
 #. Using a list of names which I henceforth refer to as the 'legacy way'.
-   Support for this approach will *not* be removed anytime soon, however no new features will be added so I strongly suggest to *not* use it.
+   As per our backward compatibility policy, support for this approach will *not* be removed before 15.0 (if ever), however no new features will be added so I strongly urge you to *not* use it.
 
 Both approaches usually entail the usage of the :func:`@attributes <attributes>` decorator which will automatically detect the desired approach and prevent mixing of them.
+
+.. autofunction:: attributes
+
 
 
 Legacy
@@ -95,6 +98,3 @@ Then there's the helper :func:`@attributes <attributes>` that combines them all 
     The generated initializer explicitly does *not* support positional
     arguments.  Those are *always* passed to the existing ``__init__``
     unaltered.
-
-
-.. autofunction:: attributes

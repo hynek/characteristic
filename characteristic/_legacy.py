@@ -9,6 +9,8 @@ def with_cmp(attrs):
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of native strings
+
+    .. deprecated:: 14.0
     """
     def attrs_to_tuple(obj):
         """
@@ -97,6 +99,8 @@ def with_repr(attrs):
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of native strings
+
+    .. deprecated:: 14.0
     """
     def repr_(self):
         """
@@ -132,6 +136,8 @@ def with_init(attrs, defaults=None):
 
     :raises ValueError: If the value for a non-optional attribute hasn't been
         passed as a keyword argument.
+
+    .. deprecated:: 14.0
     """
     if defaults is None:
         defaults = {}
