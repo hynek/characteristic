@@ -8,17 +8,18 @@ The difference between namedtuple_\ s and classes decorated by ``characteristic`
 
 .. doctest::
 
-   >>> from characteristic import attributes
-   >>> @attributes(["a",])
+   >>> from characteristic import Attribute, attributes
+   >>> @attributes
    ... class C1(object):
+   ...     a = Attribute()
    ...     def __init__(self):
    ...         if not isinstance(self.a, int):
    ...             raise ValueError("'a' must be an integer.")
    ...     def print_a(self):
    ...         print self.a
-   >>> @attributes(["a",])
+   >>> @attributes
    ... class C2(object):
-   ...     pass
+   ...     a = Attribute()
    >>> c1 = C1(a=1)
    >>> c2 = C2(a=1)
    >>> c1 == c2
