@@ -95,14 +95,14 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
     return wrap
 
 
-class _Attributes(object):
-    def __init__(self, attrs, defaults):
-        self.attrs = attrs
-        self.defaults = defaults
-
-
 def _get_attributes(cl):
     """
+    Transitional helper that converts a class with Attribute-defined attributes
+    into a list of attributes and a dictionary of default values.
+
+    It will be pruned as soon as the new-style approach doesn't use the
+    legacy decorators underneath.
+
     :rtype: _Attributes
     """
     attrs = []
@@ -114,3 +114,9 @@ def _get_attributes(cl):
         if instance.default is not NOTHING:
             defaults[name] = instance.default
     return _Attributes(attrs, defaults)
+
+
+class _Attributes(object):
+    def __init__(self, attrs, defaults):
+        self.attrs = attrs
+        self.defaults = defaults
