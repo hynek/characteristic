@@ -139,6 +139,6 @@ class TestAttribute(object):
 
 def test_nothing():
     """
-    Nothing has a sensible repr.
+    ``Nothing`` has a sensible repr.
     """
     assert "<Nothing()>" == repr(Nothing())
