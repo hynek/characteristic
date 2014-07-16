@@ -3,11 +3,25 @@
 API
 ===
 
-``characteristic`` consists of class decorators that add features to your classes.
-There are three that start with ``@with_`` that add *one* feature to your class based on a list of attributes.
-Then there's the helper ``@attributes`` that combines them all into one decorator so you don't have to repeat the attribute list multiple times.
+``characteristic`` consists of class decorators that add attribute-related features to your classes.
 
 .. currentmodule:: characteristic
+
+There are two approaches on how to define those attributes:
+
+#. By defining those attributes as class variables using instances of the :class:`Attribute` class.
+   This approach has been added as of version 14.0 to make ``characteristic`` future-proof by adding more flexibility.
+#. Using a list of names which I henceforth refer to as the 'legacy way'.
+   Support for this approach will *not* be removed anytime soon, however no new features will be added so I strongly suggest to *not* use it.
+
+Both approaches usually entail the usage of the :func:`@attributes <attributes>` decorator which will automatically detect the desired approach and prevent mixing of them.
+
+
+Legacy
+------
+
+There are three that start with ``@with_`` that add *one* feature to your class based on a list of attributes.
+Then there's the helper :func:`@attributes <attributes>` that combines them all into one decorator so you don't have to repeat the attribute list multiple times.
 
 
 .. autofunction:: with_repr
