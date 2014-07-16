@@ -8,13 +8,22 @@ from ._legacy import (
 )
 
 
-NOTHING = object()
+class Nothing(object):
+    """
+    Sentinel for undefined kwargs when ``None`` is ambiguous.
+    """
+    def __repr__(self):
+        return "<Nothing>"
+
+NOTHING = Nothing()
 
 
 class Attribute(object):
     """
     An attribute that gets defined on classes decorated with
     :func:`attributes`.
+
+    .. versionadded:: 14.0
     """
     counter = 0  # to be able to order the attributes correctly
 
@@ -36,8 +45,8 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
 
     See :doc:`examples` for ``@attributes`` in action!
 
-    It can be used both for defining attributes using :class:`Attribute()`s and
-    the `attrs` argument.  Mixing is not allowed though.
+    It can be used both for defining attributes using :class:`Attribute()`\
+    s and the `attrs` argument.  Mixing is not allowed though.
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of native strings.
@@ -53,6 +62,11 @@ def attributes(attrs_or_class=None, defaults=None, create_init=True):
         passed as a keyword argument.
     :raises ValueError: If the :class:`Attribute()`-as-class-attributes-style
         and the @attributes([])-style are mixed.
+
+
+    .. versionchanged:: 14.0
+        Introduced new style of defining attributes using the
+        :class:`Attribute` class and deprecated the old style.
     """
 
     # attrs_or class type depends on the usage of the decorator.

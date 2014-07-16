@@ -18,6 +18,7 @@ Both approaches usually entail the usage of the :func:`@attributes <attributes>`
 
 .. autofunction:: attributes
 
+.. autoclass:: Attribute
 
 
 Legacy
