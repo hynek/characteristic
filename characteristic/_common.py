@@ -13,7 +13,7 @@ class Nothing(object):
     Sentinel for undefined kwargs when ``None`` is ambiguous.
     """
     def __repr__(self):
-        return "<Nothing>"
+        return "<Nothing()>"
 
 NOTHING = Nothing()
 
