@@ -5,7 +5,7 @@ Python attributes without boilerplate.
 """
 
 
-__version__ = "14.0.0dev"
+__version__ = "14.0dev"
 __author__ = "Hynek Schlawack"
 __license__ = "MIT"
 __copyright__ = "Copyright 2014 Hynek Schlawack"
@@ -188,7 +188,7 @@ def with_init(attrs, defaults=None):
     :raises ValueError: If both *defaults* and an instance of
         :class:`Attribute` has been passed.
 
-    .. deprecated:: 14.0.0
+    .. deprecated:: 14.0
         Use :class:`Attribute` instead.
 
     :param defaults: Default values if attributes are omitted on instantiation.
@@ -230,7 +230,7 @@ def with_init(attrs, defaults=None):
                     "Mixing of the 'defaults' keyword argument and passing "
                     "instances of Attribute for 'attrs' is prohibited.  "
                     "Please don't use 'defaults' anymore, it has been "
-                    "deprecated in 14.0.0."
+                    "deprecated in 14.0."
                 )
             new_attrs.append(a)
         else:
@@ -265,7 +265,7 @@ def attributes(attrs, defaults=None, create_init=True):
     :raises ValueError: If both *defaults* and an instance of
         :class:`Attribute` has been passed.
 
-    .. deprecated:: 14.0.0
+    .. deprecated:: 14.0
         Use :class:`Attribute` instead.
 
     :param defaults: Default values if attributes are omitted on instantiation.

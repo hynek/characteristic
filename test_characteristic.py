@@ -248,7 +248,7 @@ class TestWithInit(object):
         assert (
             "Mixing of the 'defaults' keyword argument and passing instances "
             "of Attribute for 'attrs' is prohibited.  Please don't use "
-            "'defaults' anymore, it has been deprecated in 14.0.0."
+            "'defaults' anymore, it has been deprecated in 14.0."
             == e.value.args[0]
         )
 
