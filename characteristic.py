@@ -189,7 +189,7 @@ def with_init(attrs, defaults=None):
         :class:`Attribute` has been passed.
 
     .. deprecated:: 14.0
-        Use :class:`Attribute` instead.
+        Use :class:`Attribute` instead of ``defaults``.
 
     :param defaults: Default values if attributes are omitted on instantiation.
     :type defaults: ``dict`` or ``None``
@@ -252,8 +252,6 @@ def attributes(attrs, defaults=None, create_init=True):
     :func:`with_repr`, and optionally :func:`with_init` to avoid code
     duplication.
 
-    See :doc:`examples` for ``@attributes`` in action!
-
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of :class:`str` or :class:`Attribute`\ s.
 
@@ -266,7 +264,7 @@ def attributes(attrs, defaults=None, create_init=True):
         :class:`Attribute` has been passed.
 
     .. deprecated:: 14.0
-        Use :class:`Attribute` instead.
+        Use :class:`Attribute` instead of ``defaults``.
 
     :param defaults: Default values if attributes are omitted on instantiation.
     :type defaults: ``dict`` or ``None``
