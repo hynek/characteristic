@@ -257,7 +257,9 @@ def with_init(attrs, defaults=None):
         keyword arguments.
         """
         for a in attrs:
-            v = kw.pop(a.name, a._default)
+            v = kw.pop(a.name, NOTHING)
+            if v is NOTHING:
+                v = a._default
             if isinstance(v, Nothing):
                 raise ValueError(
                     "Missing keyword value for '{0}'.".format(a.name)
