@@ -16,6 +16,7 @@ def with_cmp(attrs):
     A class decorator that adds comparison methods based on *attrs*.
 
     For that, each class is treated like a ``tuple`` of the values of *attrs*.
+    But only instances of *identical* classes are compared!
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of native strings
@@ -30,7 +31,7 @@ def with_cmp(attrs):
         """
         Automatically created by characteristic.
         """
-        if isinstance(other, self.__class__):
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) == attrs_to_tuple(other)
         else:
             return NotImplemented
@@ -49,7 +50,7 @@ def with_cmp(attrs):
         """
         Automatically created by characteristic.
         """
-        if isinstance(other, self.__class__):
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) < attrs_to_tuple(other)
         else:
             return NotImplemented
@@ -58,7 +59,7 @@ def with_cmp(attrs):
         """
         Automatically created by characteristic.
         """
-        if isinstance(other, self.__class__):
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) <= attrs_to_tuple(other)
         else:
             return NotImplemented
@@ -67,7 +68,7 @@ def with_cmp(attrs):
         """
         Automatically created by characteristic.
         """
-        if isinstance(other, self.__class__):
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) > attrs_to_tuple(other)
         else:
             return NotImplemented
@@ -76,7 +77,7 @@ def with_cmp(attrs):
         """
         Automatically created by characteristic.
         """
-        if isinstance(other, self.__class__):
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) >= attrs_to_tuple(other)
         else:
             return NotImplemented
