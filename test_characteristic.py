@@ -270,7 +270,6 @@ class TestWithInit(object):
         """
         Raises `ValueError` if both defaults and an Attribute are passed.
         """
-
         with pytest.raises(ValueError) as e:
             @with_init([Attribute("a")], defaults={"a": 42})
             class C(object):

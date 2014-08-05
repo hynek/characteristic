@@ -10,7 +10,7 @@ There are three that start with ``@with_`` that add *one* feature to your class 
 Then there's the helper ``@attributes`` that combines them all into one decorator so you don't have to repeat the attribute list multiple times.
 
 Generally the decorators take a list of attributes as their first positional argument.
-This list can consists of either native strings\ [*]_ for simple cases or instances of :class:`Attribute` that allow for more customization of ``characteristics`` behavior.
+This list can consists of either native strings\ [*]_ for simple cases or instances of :class:`Attribute` that allow for more customization of ``characteristic``\ 's behavior.
 
 The easiest way to get started is to have a look at the :doc:`examples` to get a feeling for ``characteristic`` and return later for details!
 
