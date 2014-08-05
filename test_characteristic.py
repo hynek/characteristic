@@ -3,11 +3,59 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from characteristic import (
+    Attribute,
+    NOTHING,
+    _ensure_attributes,
     attributes,
     with_cmp,
     with_init,
     with_repr,
 )
+
+
+class TestAttribute(object):
+    def test_init_simple(self):
+        """
+        Instantiating with just the name initializes properly.
+        """
+        a = Attribute("foo")
+        assert "foo" == a.name
+        assert NOTHING is a._default
+
+    def test_init_default_factory(self):
+        """
+        Instantiating with default_factory creates a proper descriptor for
+        _default.
+        """
+        a = Attribute("foo", default_factory=list)
+        assert list() == a._default
+
+    def test_init_default_value(self):
+        """
+        Instantiating with default_value initializes default properly.
+        """
+        a = Attribute("foo", default_value="bar")
+        assert "bar" == a._default
+
+    def test_ambiguous_defaults(self):
+        """
+        Instantiating with both default_value and default_factory raises
+        ValueError.
+        """
+        with pytest.raises(ValueError):
+            Attribute(
+                "foo",
+                default_value="bar",
+                default_factory=lambda: 42
+            )
+
+    def test_missing_attr(self):
+        """
+        Accessing inexistent attributes still raises an AttributeError.
+        """
+        a = Attribute("foo")
+        with pytest.raises(AttributeError):
+            a.bar
 
 
 @with_cmp(["a", "b"])
@@ -137,7 +185,7 @@ class TestReprAttrs(object):
         assert "<ReprC(a=1, b=2)>" == repr(ReprC(1, 2))
 
 
-@with_init(["a", "b"])
+@with_init([Attribute("a"), Attribute("b")])
 class InitC(object):
     def __init__(self):
         if self.a == self.b:
@@ -213,8 +261,46 @@ class TestWithInit(object):
         """
         Raises `ValueError` if a value isn't passed.
         """
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as e:
             InitC(a=1)
+        assert "Missing keyword value for 'b'." == e.value.args[0]
+
+    def test_defaults_conflict(self):
+        """
+        Raises `ValueError` if both defaults and an Attribute are passed.
+        """
+        with pytest.raises(ValueError) as e:
+            @with_init([Attribute("a")], defaults={"a": 42})
+            class C(object):
+                pass
+        assert (
+            "Mixing of the 'defaults' keyword argument and passing instances "
+            "of Attribute for 'attrs' is prohibited.  Please don't use "
+            "'defaults' anymore, it has been deprecated in 14.0."
+            == e.value.args[0]
+        )
+
+    def test_attribute(self):
+        """
+        String attributes are converted to Attributes and thus work.
+        """
+        @with_init(["a"])
+        class C(object):
+            pass
+        o = C(a=1)
+        assert 1 == o.a
+
+    def test_default_factory(self):
+        """
+        The default factory is used for each instance of missing keyword
+        argument.
+        """
+        @with_init([Attribute("a", default_factory=list)])
+        class C(object):
+            pass
+        o1 = C()
+        o2 = C()
+        assert o1.a is not o2.a
 
 
 @attributes(["a", "b"], create_init=True)
@@ -245,3 +331,27 @@ class TestAttributes(object):
         obj = MagicWithInitC(a=1, b=2)
         assert 1 == obj.a
         assert 2 == obj.b
+
+
+class TestEnsureAttributes(object):
+    def test_leaves_attribute_alone(self):
+        """
+        List items that are an Attribute stay an Attribute.
+        """
+        a = Attribute("a")
+        assert a is _ensure_attributes([a])[0]
+
+    def test_converts_rest(self):
+        """
+        Any other item will be transformed into an Attribute.
+        """
+        l = _ensure_attributes(["a"])
+        assert isinstance(l[0], Attribute)
+        assert "a" == l[0].name
+
+
+def test_nothing():
+    """
+    ``NOTHING`` has a sensible repr.
+    """
+    assert "NOTHING" == repr(NOTHING)

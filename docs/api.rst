@@ -3,11 +3,21 @@
 API
 ===
 
+.. currentmodule:: characteristic
+
 ``characteristic`` consists of class decorators that add features to your classes.
 There are three that start with ``@with_`` that add *one* feature to your class based on a list of attributes.
 Then there's the helper ``@attributes`` that combines them all into one decorator so you don't have to repeat the attribute list multiple times.
 
-.. currentmodule:: characteristic
+Generally the decorators take a list of attributes as their first positional argument.
+This list can consists of either native strings\ [*]_ for simple cases or instances of :class:`Attribute` that allow for more customization of ``characteristic``\ 's behavior.
+
+The easiest way to get started is to have a look at the :doc:`examples` to get a feeling for ``characteristic`` and return later for details!
+
+.. [*] Byte strings on Python 2 and Unicode strings on Python 3.
+
+
+.. autofunction:: attributes
 
 
 .. autofunction:: with_repr
@@ -55,8 +65,9 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
 
    .. doctest::
 
-      >>> from characteristic import with_init
-      >>> @with_init(["a", "b"], defaults={"b": 2})
+      >>> from characteristic import with_init, Attribute
+      >>> @with_init(["a",
+      ...             Attribute("b", default_factory=lambda: 2)])
       ... class IClass(object):
       ...     def __init__(self):
       ...         if self.b != 2:
@@ -78,9 +89,11 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
 
    .. note::
 
-    The generated initializer explicitly does *not* support positional
-    arguments.  Those are *always* passed to the existing ``__init__``
-    unaltered.
+      The generated initializer explicitly does *not* support positional arguments.
+      Those are *always* passed to the existing ``__init__`` unaltered.
+      Used keyword arguments will *not* be passed to the original ``__init__`` method and have to be accessed on the class (i.e. ``self.a``).
 
 
-.. autofunction:: attributes
+.. autoclass:: Attribute
+
+.. autodata:: NOTHING

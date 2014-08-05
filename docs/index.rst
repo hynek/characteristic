@@ -13,11 +13,11 @@ Teaser
 
 .. doctest::
 
-   >>> from characteristic import attributes
+   >>> from characteristic import Attribute, attributes
    >>> @attributes(["a", "b"])
    ... class AClass(object):
    ...     pass
-   >>> @attributes(["a", "b"], defaults={"b": "abc"})
+   >>> @attributes(["a", Attribute("b", default_value="abc")])
    ... class AnotherClass(object):
    ...     pass
    >>> obj1 = AClass(a=1, b="abc")
@@ -38,8 +38,8 @@ User's Guide
    :maxdepth: 1
 
    why
-   api
    examples
+   api
 
 Project Information
 ^^^^^^^^^^^^^^^^^^^
