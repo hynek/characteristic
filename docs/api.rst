@@ -12,12 +12,12 @@ Then there's the helper ``@attributes`` that combines them all into one decorato
 Generally the decorators take a list of attributes as their first positional argument.
 This list can consists of either native strings\ [*]_ for simple cases or instances of :class:`Attribute` that allow for more customization of ``characteristics`` behavior.
 
+The easiest way to get started is to have a look at the :doc:`examples` to get a feeling for `characteristic`` and return later for details!
+
 .. [*] Byte strings on Python 2 and Unicode strings on Python 3.
 
 
 .. autofunction:: attributes
-
-    See :doc:`examples` for ``@attributes`` in action!
 
 
 .. autofunction:: with_repr
