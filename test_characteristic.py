@@ -4,6 +4,8 @@ import pytest
 
 from characteristic import (
     Attribute,
+    NOTHING,
+    Nothing,
     _ensure_attributes,
     attributes,
     with_cmp,
@@ -15,18 +17,46 @@ from characteristic import (
 class TestAttribute(object):
     def test_init_simple(self):
         """
-        __init__ with just the name initializes properly.
+        Instantiating with just the name initializes properly.
         """
         a = Attribute("foo")
         assert "foo" == a.name
-        assert None == a.default_factory
+        assert NOTHING is a._default
 
     def test_init_default_factory(self):
         """
-        __init__ with default_factory initializes properly.
+        Instantiating with default_factory creates a proper descriptor for
+        _default.
         """
         a = Attribute("foo", default_factory=list)
-        assert list == a.default_factory
+        assert list() == a._default
+
+    def test_init_default_value(self):
+        """
+        Instantiating with default_value initializes default properly.
+        """
+        a = Attribute("foo", default_value="bar")
+        assert "bar" == a._default
+
+    def test_ambiguous_defaults(self):
+        """
+        Instantiating with both default_value and default_factory raises
+        ValueError.
+        """
+        with pytest.raises(ValueError):
+            Attribute(
+                "foo",
+                default_value="bar",
+                default_factory=lambda: 42
+            )
+
+    def test_missing_attr(self):
+        """
+        Accessing inexistent attributes still raises an AttributeError.
+        """
+        a = Attribute("foo")
+        with pytest.raises(AttributeError):
+            a.bar
 
 
 @with_cmp(["a", "b"])
@@ -320,3 +350,10 @@ class TestEnsureAttributes(object):
         l = _ensure_attributes(["a"])
         assert isinstance(l[0], Attribute)
         assert "a" == l[0].name
+
+
+def test_nothing():
+    """
+    ``Nothing`` has a sensible repr.
+    """
+    assert "<Nothing()>" == repr(Nothing())

@@ -19,6 +19,17 @@ __all__ = [
 ]
 
 
+class Nothing(object):
+    """
+    Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
+    """
+    def __repr__(self):
+        return "<Nothing()>"
+
+
+NOTHING = Nothing()
+
+
 class Attribute(object):
     """
     A representation of an attribute.
@@ -29,16 +40,52 @@ class Attribute(object):
     :param name: Name of the attribute.
     :type name: str
 
+    :param default_value: A value that is used whenever this attribute isn't
+        passed as an keyword argument to a class that is decorated using
+        :func:`with_init` (or :func:`attributes` with ``create_init=True``).
+
+        Therefore, setting this makes an attribute *optional*.
+
+        Since a default value of `None` would be ambiguous, a special sentinel
+        class :class:`Nothing` is used.  Passing *instances* of it means the
+        lack of a default value.
     :param default_factory: A factory that is used for generating default
         values whenever this attribute isn't passed as an keyword
-        argument to a class that is decorated using :func:`with_init`.
+        argument to a class that is decorated using :func:`with_init` (or
+        :func:`attributes` with ``create_init=True``).
 
         Therefore, setting this makes an attribute *optional*.
     :type default_factory: callable
+
+    :raises ValueError: If both ``default_value`` and ``default_factory`` have
+        been passed.
     """
-    def __init__(self, name, default_factory=None):
+    def __init__(self, name, default_value=NOTHING, default_factory=None):
+        if (
+                not isinstance(default_value, Nothing)
+                and default_factory is not None
+        ):
+            raise ValueError(
+                "Passing both default_value and default_factory is "
+                "ambiguous."
+            )
+
         self.name = name
-        self.default_factory = default_factory
+        if not isinstance(default_value, Nothing):
+            self._default = default_value
+        elif default_factory is not None:
+            self._default_factory = default_factory
+        else:
+            self._default = NOTHING
+
+    def __getattr__(self, name):
+        """
+        If no value has been set to _default, we need to call a factory.
+        """
+        if name == "_default" and self._default_factory:
+            return self._default_factory()
+        else:
+            raise AttributeError
 
 
 def _ensure_attributes(attrs):
@@ -60,7 +107,7 @@ def with_cmp(attrs):
     But only instances of *identical* classes are compared!
 
     :param attrs: Attributes to work with.
-    :type attrs: ``list`` of :class:`str` or :class:`Attribute`\ s.
+    :type attrs: :class:`list` of :class:`str` or :class:`Attribute`\ s.
     """
     def attrs_to_tuple(obj):
         """
@@ -202,18 +249,15 @@ def with_init(attrs, defaults=None):
         Attribute initializer automatically created by characteristic.
 
         The original `__init__` method is renamed to `__original_init__` and
-        is called at the end.
+        is called at the end with the initialized attributes removed from the
+        keyword arguments.
         """
         for a in attrs:
-            try:
-                v = kw.pop(a.name)
-            except KeyError:
-                if a.default_factory is not None:
-                    v = a.default_factory()
-                else:
-                    raise ValueError(
-                        "Missing keyword value for '{0}'.".format(a.name)
-                    )
+            v = kw.pop(a.name, a._default)
+            if isinstance(v, Nothing):
+                raise ValueError(
+                    "Missing keyword value for '{0}'.".format(a.name)
+                )
             setattr(self, a.name, v)
         self.__original_init__(*args, **kw)
 
@@ -237,7 +281,7 @@ def with_init(attrs, defaults=None):
             default_value = defaults.get(a)
             if default_value:
                 new_attrs.append(
-                    Attribute(a, default_factory=lambda: default_value)
+                    Attribute(a, default_value=default_value)
                 )
             else:
                 new_attrs.append(Attribute(a))

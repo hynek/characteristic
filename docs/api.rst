@@ -89,9 +89,11 @@ This list can consists of either native strings\ [*]_ for simple cases or instan
       Used keyword arguments will *not* be passed to the original ``__init__`` method and have to be accessed on the class (i.e. ``self.a``).
 
 
-.. autofunction:: attributes(attrs, create_init=True):
+.. autofunction:: attributes
 
     See :doc:`examples` for ``@attributes`` in action!
 
 
 .. autoclass:: Attribute
+
+.. autoclass:: Nothing
