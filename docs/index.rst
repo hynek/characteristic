@@ -17,7 +17,7 @@ Teaser
    >>> @attributes(["a", "b"])
    ... class AClass(object):
    ...     pass
-   >>> @attributes(["a", Attribute("b", default_factory=lambda: "abc")])
+   >>> @attributes(["a", Attribute("b", default_value="abc")])
    ... class AnotherClass(object):
    ...     pass
    >>> obj1 = AClass(a=1, b="abc")
