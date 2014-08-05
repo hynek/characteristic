@@ -5,7 +5,6 @@ import pytest
 from characteristic import (
     Attribute,
     NOTHING,
-    Nothing,
     _ensure_attributes,
     attributes,
     with_cmp,
@@ -353,6 +352,6 @@ class TestEnsureAttributes(object):
 
 def test_nothing():
     """
-    ``Nothing`` has a sensible repr.
+    ``NOTHING`` has a sensible repr.
     """
-    assert "<Nothing()>" == repr(Nothing())
+    assert "NOTHING" == repr(NOTHING)

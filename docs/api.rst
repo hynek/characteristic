@@ -96,4 +96,4 @@ The easiest way to get started is to have a look at the :doc:`examples` to get a
 
 .. autoclass:: Attribute
 
-.. autoclass:: Nothing
+.. autodata:: NOTHING

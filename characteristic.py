@@ -12,6 +12,7 @@ __copyright__ = "Copyright 2014 Hynek Schlawack"
 
 __all__ = [
     "Attribute",
+    "NOTHING",
     "attributes",
     "with_cmp",
     "with_init",
@@ -19,17 +20,22 @@ __all__ = [
 ]
 
 
-class Nothing(object):
+class _Nothing(object):
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
     .. versionadded:: 14.0
     """
     def __repr__(self):
-        return "<Nothing()>"
+        return "NOTHING"
 
 
-NOTHING = Nothing()
+NOTHING = _Nothing()
+"""
+Sentinel to indicate the lack of a value when ``None`` is ambiguous.
+
+.. versionadded:: 14.0
+"""
 
 
 class Attribute(object):
@@ -49,8 +55,7 @@ class Attribute(object):
         Therefore, setting this makes an attribute *optional*.
 
         Since a default value of `None` would be ambiguous, a special sentinel
-        class :class:`Nothing` is used.  Passing *instances* of it means the
-        lack of a default value.
+        :data:`NOTHING` is used.  Passing it means the lack of a default value.
     :param default_factory: A factory that is used for generating default
         values whenever this attribute isn't passed as an keyword
         argument to a class that is decorated using :func:`with_init` (or
@@ -66,7 +71,7 @@ class Attribute(object):
     """
     def __init__(self, name, default_value=NOTHING, default_factory=None):
         if (
-                not isinstance(default_value, Nothing)
+                default_value is not NOTHING
                 and default_factory is not None
         ):
             raise ValueError(
@@ -75,7 +80,7 @@ class Attribute(object):
             )
 
         self.name = name
-        if not isinstance(default_value, Nothing):
+        if default_value is not NOTHING:
             self._default = default_value
         elif default_factory is not None:
             self._default_factory = default_factory
@@ -260,7 +265,7 @@ def with_init(attrs, defaults=None):
             v = kw.pop(a.name, NOTHING)
             if v is NOTHING:
                 v = a._default
-            if isinstance(v, Nothing):
+            if v is NOTHING:
                 raise ValueError(
                     "Missing keyword value for '{0}'.".format(a.name)
                 )
