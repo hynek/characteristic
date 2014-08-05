@@ -22,6 +22,8 @@ __all__ = [
 class Nothing(object):
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
+
+    .. versionadded:: 14.0
     """
     def __repr__(self):
         return "<Nothing()>"
@@ -59,6 +61,8 @@ class Attribute(object):
 
     :raises ValueError: If both ``default_value`` and ``default_factory`` have
         been passed.
+
+    .. versionadded:: 14.0
     """
     def __init__(self, name, default_value=NOTHING, default_factory=None):
         if (
@@ -306,6 +310,9 @@ def attributes(attrs, defaults=None, create_init=True):
         passed as a keyword argument.
     :raises ValueError: If both *defaults* and an instance of
         :class:`Attribute` has been passed.
+
+    .. versionadded:: 14.0
+        Added possibility to pass instances of :class:`Attribute` in ``attrs``.
 
     .. deprecated:: 14.0
         Use :class:`Attribute` instead of ``defaults``.
