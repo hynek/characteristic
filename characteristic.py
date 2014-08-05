@@ -69,6 +69,8 @@ class Attribute(object):
 
     .. versionadded:: 14.0
     """
+    __slots__ = ["name", "_default", "_default_factory"]
+
     def __init__(self, name, default_value=NOTHING, default_factory=None):
         if (
                 default_value is not NOTHING
