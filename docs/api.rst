@@ -15,6 +15,11 @@ This list can consists of either native strings\ [*]_ for simple cases or instan
 .. [*] Byte strings on Python 2 and Unicode strings on Python 3.
 
 
+.. autofunction:: attributes
+
+    See :doc:`examples` for ``@attributes`` in action!
+
+
 .. autofunction:: with_repr
 
    .. doctest::
@@ -87,11 +92,6 @@ This list can consists of either native strings\ [*]_ for simple cases or instan
       The generated initializer explicitly does *not* support positional arguments.
       Those are *always* passed to the existing ``__init__`` unaltered.
       Used keyword arguments will *not* be passed to the original ``__init__`` method and have to be accessed on the class (i.e. ``self.a``).
-
-
-.. autofunction:: attributes
-
-    See :doc:`examples` for ``@attributes`` in action!
 
 
 .. autoclass:: Attribute
