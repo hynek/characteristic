@@ -264,6 +264,8 @@ def with_init(attrs, defaults=None):
         for a in attrs:
             v = kw.pop(a.name, NOTHING)
             if v is NOTHING:
+                # Since ``a._default`` could be a property that calls
+                # a factory, we make this a separate step.
                 v = a._default
             if v is NOTHING:
                 raise ValueError(
