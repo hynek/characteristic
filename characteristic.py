@@ -67,14 +67,28 @@ class Attribute(object):
         Therefore, setting this makes an attribute *optional*.
     :type default_factory: callable
 
+    :param keep_underscores: When using :func:`with_init` (or
+        :func:`attributes` with ``create_init=True``), the keyword arguments
+        for initializing ``_private`` and ``__very_private`` become ``private``
+        and ``very_private`` unless this option is `True`.  The attributes on
+        the class keep the underscores in any event. (default: `False`)
+
+        Please note that "dunder" attributes aren't supported by
+        :func:`with_init` (yet?).
+    :type keep_underscores: bool
+
     :raises ValueError: If both ``default_value`` and ``default_factory`` have
         been passed.
 
     .. versionadded:: 14.0
     """
-    __slots__ = ["name", "_default", "_default_factory"]
+    __slots__ = ["name", "_default", "_default_factory", "_kw_name"]
 
-    def __init__(self, name, default_value=NOTHING, default_factory=None):
+    def __init__(self,
+                 name,
+                 default_value=NOTHING,
+                 default_factory=None,
+                 keep_underscores=False):
         if (
                 default_value is not NOTHING
                 and default_factory is not None
@@ -85,6 +99,13 @@ class Attribute(object):
             )
 
         self.name = name
+        if not keep_underscores and name.startswith("__"):
+            self._kw_name = name[2:]
+        elif not keep_underscores and name.startswith("_"):
+            self._kw_name = name[1:]
+        else:
+            self._kw_name = name
+
         if default_value is not NOTHING:
             self._default = default_value
         elif default_factory is not None:
@@ -267,14 +288,14 @@ def with_init(attrs, defaults=None):
         keyword arguments.
         """
         for a in attrs:
-            v = kw.pop(a.name, NOTHING)
+            v = kw.pop(a._kw_name, NOTHING)
             if v is NOTHING:
                 # Since ``a._default`` could be a property that calls
                 # a factory, we make this a separate step.
                 v = a._default
             if v is NOTHING:
                 raise ValueError(
-                    "Missing keyword value for '{0}'.".format(a.name)
+                    "Missing keyword value for '{0}'.".format(a._kw_name)
                 )
             self.__characteristic_setattr__(a.name, v)
         self.__original_init__(*args, **kw)
@@ -303,10 +324,14 @@ def with_init(attrs, defaults=None):
             default_value = defaults.get(a)
             if default_value:
                 new_attrs.append(
-                    Attribute(a, default_value=default_value)
+                    Attribute(
+                        a,
+                        default_value=default_value,
+                        keep_underscores=True,
+                    )
                 )
             else:
-                new_attrs.append(Attribute(a))
+                new_attrs.append(Attribute(a, keep_underscores=True))
 
     attrs = new_attrs
     return wrap
