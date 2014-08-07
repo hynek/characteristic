@@ -28,7 +28,7 @@ Examples
    >>> obj3 > obj1
    True
 
-To offer more power and possibilities, a distinct class :class:`Attribute` has been added.
+To offer more power and possibilities, a distinct class :class:`~characteristic.Attribute` has been added.
 It allows for things like default values for certain attributes, making them optional when ``characteristic``\ 's generated initializer is used:
 
 .. doctest::
@@ -88,3 +88,22 @@ Guess what ``characteristic`` supports?
    Traceback (most recent call last):
     ...
    TypeError: Attribute 'a' of class 'AnotherImmutableClass' is immutable.
+
+And if you want your classes to have certain attributes private, ``characteristic`` will keep your keyword arguments clean if not told otherwise\ [*]_:
+
+.. doctest::
+
+   >> @attributes([Attribute("private")])
+   .. class CWithPrivateAttribute(object):
+   ..     pass
+   >> obj8 = CWithPrivateAttribute(private=42)
+   >> obj8._private
+   42
+   >> @attributes([Attribute("private", keep_underscores=False)])
+   .. class CWithPrivateAttributeNoAliasing(object):
+   ..     pass
+   >> obj8 = CWithPrivateAttributeNoAliasing(_private=42)
+   >> obj8._private
+   42
+
+.. [*] This works *only* for attributes defined using the :class:`~characteristic.Attribute` class.
