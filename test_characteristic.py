@@ -428,6 +428,26 @@ class TestAttributes(object):
         c = C(a=42)
         assert c.__original_setattr__ == c.__characteristic_setattr__
 
+    def test_private(self):
+        """
+        Integration test for name mangling/aliasing.
+        """
+        @attributes([Attribute("_a")])
+        class C(object):
+            pass
+        c = C(a=42)
+        assert 42 == c._a
+
+    def test_private_no_alias(self):
+        """
+        Integration test for name mangling/aliasing.
+        """
+        @attributes([Attribute("_a", keep_underscores=True)])
+        class C(object):
+            pass
+        c = C(_a=42)
+        assert 42 == c._a
+
 
 class TestEnsureAttributes(object):
     def test_leaves_attribute_alone(self):

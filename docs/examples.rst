@@ -93,17 +93,17 @@ And if you want your classes to have certain attributes private, ``characteristi
 
 .. doctest::
 
-   >> @attributes([Attribute("private")])
-   .. class CWithPrivateAttribute(object):
-   ..     pass
-   >> obj8 = CWithPrivateAttribute(private=42)
-   >> obj8._private
+   >>> @attributes([Attribute("_private")])
+   ... class CWithPrivateAttribute(object):
+   ...     pass
+   >>> obj8 = CWithPrivateAttribute(private=42)
+   >>> obj8._private
    42
-   >> @attributes([Attribute("private", keep_underscores=False)])
-   .. class CWithPrivateAttributeNoAliasing(object):
-   ..     pass
-   >> obj8 = CWithPrivateAttributeNoAliasing(_private=42)
-   >> obj8._private
+   >>> @attributes([Attribute("_private", keep_underscores=True)])
+   ... class CWithPrivateAttributeNoAliasing(object):
+   ...     pass
+   >>> obj9 = CWithPrivateAttributeNoAliasing(_private=42)
+   >>> obj9._private
    42
 
 .. [*] This works *only* for attributes defined using the :class:`~characteristic.Attribute` class.

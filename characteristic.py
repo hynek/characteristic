@@ -99,9 +99,9 @@ class Attribute(object):
             )
 
         self.name = name
-        if not keep_underscores and name.startswith("__"):
+        if keep_underscores is False and name.startswith("__"):
             self._kw_name = name[2:]
-        elif not keep_underscores and name.startswith("_"):
+        elif keep_underscores is False and name.startswith("_"):
             self._kw_name = name[1:]
         else:
             self._kw_name = name
@@ -129,7 +129,8 @@ def _ensure_attributes(attrs):
     all non-Attributes.
     """
     return [
-        Attribute(a) if not isinstance(a, Attribute) else a
+        Attribute(a, keep_underscores=True)
+        if not isinstance(a, Attribute) else a
         for a in attrs
     ]
 
