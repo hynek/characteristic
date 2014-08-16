@@ -67,7 +67,7 @@ Guess what ``characteristic`` supports?
 
 .. doctest::
 
-   >>> @attributes([Attribute("a")])
+   >>> @attributes([Attribute("a")], make_immutable=True)
    ... class ImmutableClass(object):
    ...     pass
    >>> ic = ImmutableClass(a=42)
@@ -77,7 +77,7 @@ Guess what ``characteristic`` supports?
    Traceback (most recent call last):
     ...
    TypeError: Attribute 'a' of class 'ImmutableClass' is immutable.
-   >>> @attributes([Attribute("a")])
+   >>> @attributes([Attribute("a")], make_immutable=True)
    ... class AnotherImmutableClass(object):
    ...     def __init__(self):
    ...         self.a *= 2

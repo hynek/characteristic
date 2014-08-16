@@ -305,15 +305,26 @@ class TestWithInit(object):
 
     def test_optimizes(self):
         """
-        with_init uses __original_setattr__ if possible.
+        Uses __original_setattr__ if possible.
         """
         @immutable(["a"])
         @with_init(["a"])
         class C(object):
-            __slots__ = ["a"]
+            pass
 
         c = C(a=42)
         assert c.__original_setattr__ == c.__characteristic_setattr__
+
+    def test_setattr(self):
+        """
+        Uses setattr by default.
+        """
+        @with_init(["a"])
+        class C(object):
+            pass
+
+        c = C(a=42)
+        assert c.__setattr__ == c.__characteristic_setattr__
 
 
 @attributes(["a", "b"], create_init=True)
@@ -361,7 +372,7 @@ class TestAttributes(object):
         """
         Uses correct order such that with_init can us __original_setattr__.
         """
-        @attributes(["a"])
+        @attributes(["a"], make_immutable=True)
         class C(object):
             __slots__ = ["a"]
 

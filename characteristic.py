@@ -357,7 +357,7 @@ def immutable(attrs):
     return wrap
 
 
-def attributes(attrs, defaults=None, create_init=True, make_immutable=True):
+def attributes(attrs, defaults=None, create_init=True, make_immutable=False):
     """
     A convenience class decorator that combines :func:`with_cmp`,
     :func:`with_repr`, and optionally :func:`with_init` and
