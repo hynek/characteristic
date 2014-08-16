@@ -18,10 +18,11 @@ characteristic: Python attributes without boilerplate.
 
 ``characteristic`` is an `MIT <http://choosealicense.com/licenses/mit/>`_-licensed Python package with class decorators that ease the chores of implementing the most common attribute-related object protocols.
 
-You just specify the attributes to work with and ``characteristic`` gives you:
+You just specify the attributes to work with and ``characteristic`` gives you any or all of:
 
 - a nice human-readable ``__repr__``,
 - a complete set of comparison methods,
+- immutability for attributes,
 - and a kwargs-based initializer (that cooperates with your existing one)
 
 *without* writing dull boilerplate code again and again.

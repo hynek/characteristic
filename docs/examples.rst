@@ -61,3 +61,30 @@ It allows for things like default values for certain attributes, making them opt
    False
    >>> obj6.b is obj7.b
    False
+
+Immutable data structures are amazing!
+Guess what ``characteristic`` supports?
+
+.. doctest::
+
+   >>> @attributes([Attribute("a")])
+   ... class ImmutableClass(object):
+   ...     pass
+   >>> ic = ImmutableClass(a=42)
+   >>> ic.a
+   42
+   >>> ic.a = 43
+   Traceback (most recent call last):
+    ...
+   TypeError: Attribute 'a' of class 'ImmutableClass' is immutable.
+   >>> @attributes([Attribute("a")])
+   ... class AnotherImmutableClass(object):
+   ...     def __init__(self):
+   ...         self.a *= 2
+   >>> ic2 = AnotherImmutableClass(a=21)
+   >>> ic2.a
+   42
+   >>> ic.a = 43
+   Traceback (most recent call last):
+    ...
+   TypeError: Attribute 'a' of class 'AnotherImmutableClass' is immutable.
