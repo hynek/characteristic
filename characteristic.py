@@ -332,9 +332,9 @@ def immutable(attrs):
         """
         Immutability sentry automatically created by characteristic.
 
-        If an attribute is attempted to be set from any other place than
-        an initializer, a TypeError is raised.  Else the original
-        __setattr__ is called.
+        If an attribute is attempted to be set from any other place than an
+        initializer, a TypeError is raised.  Else the original __setattr__ is
+        called.
         """
         prev = sys._getframe().f_back
         if (
