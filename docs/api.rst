@@ -111,6 +111,23 @@ The easiest way to get started is to have a look at the :doc:`examples` to get a
       TypeError: Attribute 'foo' of class 'ImmutableClass' is immutable.
 
 
+   Please note, that that doesn't mean that the attributes themselves are immutable too:
+
+   .. doctest::
+
+      >>> @immutable(["foo"])
+      ... class C(object):
+      ...     foo = []
+      >>> i = C()
+      >>> i.foo = [42]
+      Traceback (most recent call last):
+       ...
+      TypeError: Attribute 'foo' of class 'C' is immutable.
+      >>> i.foo.append(42)
+      >>> i.foo
+      [42]
+
+
 .. autoclass:: Attribute
 
 .. autodata:: NOTHING
