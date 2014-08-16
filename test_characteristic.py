@@ -379,7 +379,7 @@ class TestImmutable(object):
 
     def test_Attribute(self):
         """
-        Immutability is caught if user passes an Attribute instance.
+        Mutation is caught if user passes an Attribute instance.
         """
         @immutable([Attribute("foo")])
         class ImmuClass(object):
