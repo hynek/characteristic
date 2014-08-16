@@ -303,6 +303,18 @@ class TestWithInit(object):
         o2 = C()
         assert o1.a is not o2.a
 
+    def test_optimizes(self):
+        """
+        with_init uses __original_setattr__ if possible.
+        """
+        @immutable(["a"])
+        @with_init(["a"])
+        class C(object):
+            __slots__ = ["a"]
+
+        c = C(a=42)
+        assert c.__original_setattr__ == c.__characteristic_setattr__
+
 
 @attributes(["a", "b"], create_init=True)
 class MagicWithInitC(object):
@@ -344,6 +356,17 @@ class TestAttributes(object):
         obj = ImmuClass(a=42)
         with pytest.raises(TypeError):
             obj.a = "23"
+
+    def test_optimizes(self):
+        """
+        Uses correct order such that with_init can us __original_setattr__.
+        """
+        @attributes(["a"])
+        class C(object):
+            __slots__ = ["a"]
+
+        c = C(a=42)
+        assert c.__original_setattr__ == c.__characteristic_setattr__
 
 
 class TestEnsureAttributes(object):

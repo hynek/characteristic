@@ -276,12 +276,16 @@ def with_init(attrs, defaults=None):
                 raise ValueError(
                     "Missing keyword value for '{0}'.".format(a.name)
                 )
-            setattr(self, a.name, v)
+            self.__characteristic_setattr__(a.name, v)
         self.__original_init__(*args, **kw)
 
     def wrap(cl):
         cl.__original_init__ = cl.__init__
         cl.__init__ = characteristic_init
+        # Sidestep immutability sentry completely if possible..
+        cl.__characteristic_setattr__ = getattr(
+            cl, "__original_setattr__", cl.__setattr__
+        )
         return cl
 
     new_attrs = []
@@ -324,28 +328,28 @@ def immutable(attrs):
     attrs = frozenset(attr.name if isinstance(attr, Attribute) else attr
                       for attr in _ensure_attributes(attrs))
 
+    def characteristic_immutability_sentry(self, attr, value):
+        """
+        Immutability sentry automatically created by characteristic.
+
+        If an attribute is attempted to be set from any other place than
+        an initializer, a TypeError is raised.  Else the original
+        __setattr__ is called.
+        """
+        prev = sys._getframe().f_back
+        if (
+            attr not in attrs
+            or
+            prev is not None and prev.f_code.co_name in _VALID_INITS
+        ):
+            self.__original_setattr__(attr, value)
+        else:
+            raise TypeError(
+                "Attribute '{0}' of class '{1}' is immutable."
+                .format(attr, self.__class__.__name__)
+            )
+
     def wrap(cl):
-        def characteristic_immutability_sentry(self, attr, value):
-            """
-            Immutability sentry automatically created by characteristic.
-
-            If an attribute is attempted to be set from any other place than
-            an initializer, a TypeError is raised.  Else the original
-            __setattr__ is called.
-            """
-            prev = sys._getframe().f_back
-            if (
-                attr not in attrs
-                or
-                prev is not None and prev.f_code.co_name in _VALID_INITS
-            ):
-                self.__original_setattr__(attr, value)
-            else:
-                raise TypeError(
-                    "Attribute '{0}' of class '{1}' is immutable."
-                    .format(attr, cl.__name__)
-                )
-
         cl.__original_setattr__ = cl.__setattr__
         cl.__setattr__ = characteristic_immutability_sentry
         return cl
@@ -387,9 +391,11 @@ def attributes(attrs, defaults=None, create_init=True, make_immutable=True):
     """
     def wrap(cl):
         cl = with_cmp(attrs)(with_repr(attrs)(cl))
-        if create_init is True:
-            cl = with_init(attrs, defaults=defaults)(cl)
+        # Order matters here because with_init can optimize and side-step
+        # immutable's sentry function.
         if make_immutable is True:
             cl = immutable(attrs)(cl)
+        if create_init is True:
+            cl = with_init(attrs, defaults=defaults)(cl)
         return cl
     return wrap
