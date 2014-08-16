@@ -4,6 +4,8 @@ from __future__ import absolute_import, division, print_function
 Python attributes without boilerplate.
 """
 
+import sys
+
 
 __version__ = "14.0dev"
 __author__ = "Hynek Schlawack"
@@ -14,6 +16,7 @@ __all__ = [
     "Attribute",
     "NOTHING",
     "attributes",
+    "immutable",
     "with_cmp",
     "with_init",
     "with_repr",
@@ -255,7 +258,7 @@ def with_init(attrs, defaults=None):
     if defaults is None:
         defaults = {}
 
-    def init(self, *args, **kw):
+    def characteristic_init(self, *args, **kw):
         """
         Attribute initializer automatically created by characteristic.
 
@@ -273,12 +276,16 @@ def with_init(attrs, defaults=None):
                 raise ValueError(
                     "Missing keyword value for '{0}'.".format(a.name)
                 )
-            setattr(self, a.name, v)
+            self.__characteristic_setattr__(a.name, v)
         self.__original_init__(*args, **kw)
 
     def wrap(cl):
         cl.__original_init__ = cl.__init__
-        cl.__init__ = init
+        cl.__init__ = characteristic_init
+        # Sidestep immutability sentry completely if possible..
+        cl.__characteristic_setattr__ = getattr(
+            cl, "__original_setattr__", cl.__setattr__
+        )
         return cl
 
     new_attrs = []
@@ -305,17 +312,65 @@ def with_init(attrs, defaults=None):
     return wrap
 
 
-def attributes(attrs, defaults=None, create_init=True):
+_VALID_INITS = frozenset(["characteristic_init", "__init__"])
+
+
+def immutable(attrs):
+    """
+    Makes *attrs* of a class immutable.
+
+    That means that *attrs* can only be set from an initializer.  If anyone
+    else tries to set one of them, a :exc:`TypeError` is raised.
+
+    .. versionadded:: 14.0
+    """
+    # In this case, we just want to compare (native) strings.
+    attrs = frozenset(attr.name if isinstance(attr, Attribute) else attr
+                      for attr in _ensure_attributes(attrs))
+
+    def characteristic_immutability_sentry(self, attr, value):
+        """
+        Immutability sentry automatically created by characteristic.
+
+        If an attribute is attempted to be set from any other place than an
+        initializer, a TypeError is raised.  Else the original __setattr__ is
+        called.
+        """
+        prev = sys._getframe().f_back
+        if (
+            attr not in attrs
+            or
+            prev is not None and prev.f_code.co_name in _VALID_INITS
+        ):
+            self.__original_setattr__(attr, value)
+        else:
+            raise TypeError(
+                "Attribute '{0}' of class '{1}' is immutable."
+                .format(attr, self.__class__.__name__)
+            )
+
+    def wrap(cl):
+        cl.__original_setattr__ = cl.__setattr__
+        cl.__setattr__ = characteristic_immutability_sentry
+        return cl
+
+    return wrap
+
+
+def attributes(attrs, defaults=None, create_init=True, make_immutable=True):
     """
     A convenience class decorator that combines :func:`with_cmp`,
-    :func:`with_repr`, and optionally :func:`with_init` to avoid code
-    duplication.
+    :func:`with_repr`, and optionally :func:`with_init` and
+    :func:`immutable` to avoid code duplication.
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of :class:`str` or :class:`Attribute`\ s.
 
     :param create_init: Also apply :func:`with_init` (default: ``True``)
-    :type create_init: ``bool``
+    :type create_init: bool
+
+    :param make_immutable: Also apply :func:`immutable` (default: ``False``)
+    :type make_immutable: bool
 
     :raises ValueError: If the value for a non-optional attribute hasn't been
         passed as a keyword argument.
@@ -325,6 +380,9 @@ def attributes(attrs, defaults=None, create_init=True):
     .. versionadded:: 14.0
         Added possibility to pass instances of :class:`Attribute` in ``attrs``.
 
+    .. versionadded:: 14.0
+        Added ``make_immutable``.
+
     .. deprecated:: 14.0
         Use :class:`Attribute` instead of ``defaults``.
 
@@ -333,8 +391,11 @@ def attributes(attrs, defaults=None, create_init=True):
     """
     def wrap(cl):
         cl = with_cmp(attrs)(with_repr(attrs)(cl))
+        # Order matters here because with_init can optimize and side-step
+        # immutable's sentry function.
+        if make_immutable is True:
+            cl = immutable(attrs)(cl)
         if create_init is True:
-            return with_init(attrs, defaults=defaults)(cl)
-        else:
-            return cl
+            cl = with_init(attrs, defaults=defaults)(cl)
+        return cl
     return wrap

@@ -7,6 +7,7 @@ from characteristic import (
     NOTHING,
     _ensure_attributes,
     attributes,
+    immutable,
     with_cmp,
     with_init,
     with_repr,
@@ -302,6 +303,18 @@ class TestWithInit(object):
         o2 = C()
         assert o1.a is not o2.a
 
+    def test_optimizes(self):
+        """
+        with_init uses __original_setattr__ if possible.
+        """
+        @immutable(["a"])
+        @with_init(["a"])
+        class C(object):
+            __slots__ = ["a"]
+
+        c = C(a=42)
+        assert c.__original_setattr__ == c.__characteristic_setattr__
+
 
 @attributes(["a", "b"], create_init=True)
 class MagicWithInitC(object):
@@ -332,6 +345,29 @@ class TestAttributes(object):
         assert 1 == obj.a
         assert 2 == obj.b
 
+    def test_immutable(self):
+        """
+        If *make_immutable* is `True`, make class immutable.
+        """
+        @attributes(["a"], make_immutable=True)
+        class ImmuClass(object):
+            pass
+
+        obj = ImmuClass(a=42)
+        with pytest.raises(TypeError):
+            obj.a = "23"
+
+    def test_optimizes(self):
+        """
+        Uses correct order such that with_init can us __original_setattr__.
+        """
+        @attributes(["a"])
+        class C(object):
+            __slots__ = ["a"]
+
+        c = C(a=42)
+        assert c.__original_setattr__ == c.__characteristic_setattr__
+
 
 class TestEnsureAttributes(object):
     def test_leaves_attribute_alone(self):
@@ -348,6 +384,58 @@ class TestEnsureAttributes(object):
         l = _ensure_attributes(["a"])
         assert isinstance(l[0], Attribute)
         assert "a" == l[0].name
+
+
+class TestImmutable(object):
+    def test_bare(self):
+        """
+        In an immutable class, setting an definition-time attribute raises an
+        TypeError.
+        """
+        @immutable(["foo"])
+        class ImmuClass(object):
+            foo = "bar"
+
+        i = ImmuClass()
+        with pytest.raises(TypeError):
+            i.foo = "not bar"
+
+    def test_Attribute(self):
+        """
+        Mutation is caught if user passes an Attribute instance.
+        """
+        @immutable([Attribute("foo")])
+        class ImmuClass(object):
+            def __init__(self):
+                self.foo = "bar"
+
+        i = ImmuClass()
+        with pytest.raises(TypeError):
+            i.foo = "not bar"
+
+    def test_init(self):
+        """
+        Changes within __init__ are allowed.
+        """
+        @immutable(["foo"])
+        class ImmuClass(object):
+            def __init__(self):
+                self.foo = "bar"
+
+        i = ImmuClass()
+        assert "bar" == i.foo
+
+    def test_with_init(self):
+        """
+        Changes in with_init's initializer are allowed.
+        """
+        @immutable(["foo"])
+        @with_init(["foo"])
+        class ImmuClass(object):
+            pass
+
+        i = ImmuClass(foo="qux")
+        assert "qux" == i.foo
 
 
 def test_nothing():

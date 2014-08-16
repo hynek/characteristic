@@ -5,9 +5,9 @@ API
 
 .. currentmodule:: characteristic
 
-``characteristic`` consists of class decorators that add features to your classes.
-There are three that start with ``@with_`` that add *one* feature to your class based on a list of attributes.
-Then there's the helper ``@attributes`` that combines them all into one decorator so you don't have to repeat the attribute list multiple times.
+``characteristic`` consists of several class decorators that add features to your classes.
+There are four that add *one* feature each to your class.
+And then there's the helper ``@attributes`` that combines them all into one decorator so you don't have to repeat the attribute list multiple times.
 
 Generally the decorators take a list of attributes as their first positional argument.
 This list can consists of either native strings\ [*]_ for simple cases or instances of :class:`Attribute` that allow for more customization of ``characteristic``\ 's behavior.
@@ -92,6 +92,40 @@ The easiest way to get started is to have a look at the :doc:`examples` to get a
       The generated initializer explicitly does *not* support positional arguments.
       Those are *always* passed to the existing ``__init__`` unaltered.
       Used keyword arguments will *not* be passed to the original ``__init__`` method and have to be accessed on the class (i.e. ``self.a``).
+
+
+.. autofunction:: immutable
+
+   .. doctest::
+
+      >>> from characteristic import immutable
+      >>> @immutable([Attribute("foo")])
+      ... class ImmutableClass(object):
+      ...     foo = "bar"
+      >>> ic = ImmutableClass()
+      >>> ic.foo
+      'bar'
+      >>> ic.foo = "not bar"
+      Traceback (most recent call last):
+        ...
+      TypeError: Attribute 'foo' of class 'ImmutableClass' is immutable.
+
+
+   Please note, that that doesn't mean that the attributes themselves are immutable too:
+
+   .. doctest::
+
+      >>> @immutable(["foo"])
+      ... class C(object):
+      ...     foo = []
+      >>> i = C()
+      >>> i.foo = [42]
+      Traceback (most recent call last):
+       ...
+      TypeError: Attribute 'foo' of class 'C' is immutable.
+      >>> i.foo.append(42)
+      >>> i.foo
+      [42]
 
 
 .. autoclass:: Attribute
