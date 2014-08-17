@@ -59,6 +59,7 @@ class Attribute(object):
 
         Since a default value of `None` would be ambiguous, a special sentinel
         :data:`NOTHING` is used.  Passing it means the lack of a default value.
+
     :param default_factory: A factory that is used for generating default
         values whenever this attribute isn't passed as an keyword
         argument to a class that is decorated using :func:`with_init` (or
@@ -66,6 +67,12 @@ class Attribute(object):
 
         Therefore, setting this makes an attribute *optional*.
     :type default_factory: callable
+
+    :param instance_of: If used together with :func:`with_init` (or
+        :func:`attributes` with ``create_init=True``), the passed value is
+        checked whether it's an instance of the type passed here.  The
+        initializer then raises :exc:`TypeError` on mismatch.
+    :type instance_of: type
 
     :param keep_underscores: When using :func:`with_init` (or
         :func:`attributes` with ``create_init=True``), the keyword arguments
@@ -82,12 +89,14 @@ class Attribute(object):
 
     .. versionadded:: 14.0
     """
-    __slots__ = ["name", "_default", "_default_factory", "_kw_name"]
+    __slots__ = ["name", "_default", "_default_factory", "_kw_name",
+                 "_instance_of"]
 
     def __init__(self,
                  name,
                  default_value=NOTHING,
                  default_factory=None,
+                 instance_of=None,
                  keep_underscores=False):
         if (
                 default_value is not NOTHING
@@ -99,6 +108,7 @@ class Attribute(object):
             )
 
         self.name = name
+        self._instance_of = instance_of
         if keep_underscores is False and name.startswith("__"):
             self._kw_name = name[2:]
         elif keep_underscores is False and name.startswith("_"):
@@ -264,9 +274,9 @@ def with_init(attrs, defaults=None):
     default values for some of *attrs* can be passed too.
 
     Attributes that are defined using :class:`Attribute` and start with
-    underscores, will get them stripped for the initializer arguments by
-    default (this behavior is changeable on per-attribute basis when
-    instantiating :class:`Attribute`.
+    underscores will get them stripped for the initializer arguments by default
+    (this behavior is changeable on per-attribute basis when instantiating
+    :class:`Attribute`.
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of :class:`str` or :class:`Attribute`\ s.
@@ -303,6 +313,12 @@ def with_init(attrs, defaults=None):
                 raise ValueError(
                     "Missing keyword value for '{0}'.".format(a._kw_name)
                 )
+            if a._instance_of is not None:
+                if not isinstance(v, a._instance_of):
+                    raise TypeError(
+                        "Attribute '{0}' must be an instance of '{1}'."
+                        .format(a.name, a._instance_of.__name__)
+                    )
             self.__characteristic_setattr__(a.name, v)
         self.__original_init__(*args, **kw)
 
