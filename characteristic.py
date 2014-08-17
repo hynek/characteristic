@@ -351,7 +351,7 @@ def immutable(attrs):
     Makes *attrs* of a class immutable.
 
     That means that *attrs* can only be set from an initializer.  If anyone
-    else tries to set one of them, a :exc:`TypeError` is raised.
+    else tries to set one of them, an :exc:`AttributeError` is raised.
 
     .. versionadded:: 14.0
     """
@@ -375,7 +375,7 @@ def immutable(attrs):
         ):
             self.__original_setattr__(attr, value)
         else:
-            raise TypeError(
+            raise AttributeError(
                 "Attribute '{0}' of class '{1}' is immutable."
                 .format(attr, self.__class__.__name__)
             )
@@ -403,8 +403,6 @@ def attributes(attrs, defaults=None, create_init=True, make_immutable=False):
     :param make_immutable: Also apply :func:`immutable` (default: ``False``)
     :type make_immutable: bool
 
-    :raises ValueError: If the value for a non-optional attribute hasn't been
-        passed as a keyword argument.
     :raises ValueError: If both *defaults* and an instance of
         :class:`Attribute` has been passed.
 

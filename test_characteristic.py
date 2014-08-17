@@ -414,7 +414,7 @@ class TestAttributes(object):
             pass
 
         obj = ImmuClass(a=42)
-        with pytest.raises(TypeError):
+        with pytest.raises(AttributeError):
             obj.a = "23"
 
     def test_optimizes(self):
@@ -470,14 +470,14 @@ class TestImmutable(object):
     def test_bare(self):
         """
         In an immutable class, setting an definition-time attribute raises an
-        TypeError.
+        AttributeError.
         """
         @immutable(["foo"])
         class ImmuClass(object):
             foo = "bar"
 
         i = ImmuClass()
-        with pytest.raises(TypeError):
+        with pytest.raises(AttributeError):
             i.foo = "not bar"
 
     def test_Attribute(self):
@@ -490,7 +490,7 @@ class TestImmutable(object):
                 self.foo = "bar"
 
         i = ImmuClass()
-        with pytest.raises(TypeError):
+        with pytest.raises(AttributeError):
             i.foo = "not bar"
 
     def test_init(self):

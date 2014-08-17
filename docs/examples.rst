@@ -76,7 +76,7 @@ Guess what ``characteristic`` supports?
    >>> ic.a = 43
    Traceback (most recent call last):
     ...
-   TypeError: Attribute 'a' of class 'ImmutableClass' is immutable.
+   AttributeError: Attribute 'a' of class 'ImmutableClass' is immutable.
    >>> @attributes([Attribute("a")], make_immutable=True)
    ... class AnotherImmutableClass(object):
    ...     def __init__(self):
@@ -87,7 +87,7 @@ Guess what ``characteristic`` supports?
    >>> ic.a = 43
    Traceback (most recent call last):
     ...
-   TypeError: Attribute 'a' of class 'AnotherImmutableClass' is immutable.
+   AttributeError: Attribute 'a' of class 'AnotherImmutableClass' is immutable.
 
 And if you want your classes to have certain attributes private, ``characteristic`` will keep your keyword arguments clean if not told otherwise\ [*]_:
 
