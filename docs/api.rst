@@ -67,13 +67,16 @@ The easiest way to get started is to have a look at the :doc:`examples` to get a
 
       >>> from characteristic import with_init, Attribute
       >>> @with_init(["a",
-      ...             Attribute("b", default_factory=lambda: 2)])
+      ...             Attribute("b", default_factory=lambda: 2),
+      ...             Attribute("_c")])
       ... class IClass(object):
       ...     def __init__(self):
       ...         if self.b != 2:
       ...             raise ValueError("'b' must be 2!")
-      >>> o1 = IClass(a=1, b=2)
-      >>> o2 = IClass(a=1)
+      >>> o1 = IClass(a=1, b=2, c=3)
+      >>> o2 = IClass(a=1, c=3)
+      >>> o1._c
+      3
       >>> o1.a == o2.a
       True
       >>> o1.b == o2.b

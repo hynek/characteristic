@@ -58,6 +58,35 @@ class TestAttribute(object):
         with pytest.raises(AttributeError):
             a.bar
 
+    def test_alias(self):
+        """
+        If an attribute with a leading _ is defined, the initializer keyword
+        is stripped of it.
+        """
+        a = Attribute("_private")
+        assert "private" == a._kw_name
+
+    def test_non_alias(self):
+        """
+        The keyword name of a non-private
+        """
+        a = Attribute("public")
+        assert "public" == a._kw_name
+
+    def test_dunder(self):
+        """
+        Dunder gets all _ stripped.
+        """
+        a = Attribute("__very_private")
+        assert "very_private" == a._kw_name
+
+    def test_keep_underscores(self):
+        """
+        No aliasing if keep_underscores is True.
+        """
+        a = Attribute("_private", keep_underscores=True)
+        assert a.name == a._kw_name
+
 
 @with_cmp(["a", "b"])
 class CmpC(object):
@@ -326,6 +355,26 @@ class TestWithInit(object):
         c = C(a=42)
         assert c.__setattr__ == c.__characteristic_setattr__
 
+    def test_underscores(self):
+        """
+        with_init takes keyword aliasing into account.
+        """
+        @with_init([Attribute("_a")])
+        class C(object):
+            pass
+        c = C(a=1)
+        assert 1 == c._a
+
+    def test_plain_no_alias(self):
+        """
+        str-based attributes don't get aliased for backward-compatibility.
+        """
+        @with_init(["_a"])
+        class C(object):
+            pass
+        c = C(_a=1)
+        assert 1 == c._a
+
 
 @attributes(["a", "b"], create_init=True)
 class MagicWithInitC(object):
@@ -378,6 +427,26 @@ class TestAttributes(object):
 
         c = C(a=42)
         assert c.__original_setattr__ == c.__characteristic_setattr__
+
+    def test_private(self):
+        """
+        Integration test for name mangling/aliasing.
+        """
+        @attributes([Attribute("_a")])
+        class C(object):
+            pass
+        c = C(a=42)
+        assert 42 == c._a
+
+    def test_private_no_alias(self):
+        """
+        Integration test for name mangling/aliasing.
+        """
+        @attributes([Attribute("_a", keep_underscores=True)])
+        class C(object):
+            pass
+        c = C(_a=42)
+        assert 42 == c._a
 
 
 class TestEnsureAttributes(object):
