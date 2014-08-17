@@ -74,7 +74,7 @@ class Attribute(object):
         the class keep the underscores in any event. (default: `False`)
 
         Please note that "dunder" attributes aren't supported by
-        :func:`with_init` (yet?).
+        :func:`with_init` yet and may never be.
     :type keep_underscores: bool
 
     :raises ValueError: If both ``default_value`` and ``default_factory`` have
@@ -262,6 +262,11 @@ def with_init(attrs, defaults=None):
     Those keyword arguments that are used, are removed from the `kwargs` that
     is passed into your original ``__init__``.  Optionally, a dictionary of
     default values for some of *attrs* can be passed too.
+
+    Attributes that are defined using :class:`Attribute` and start with
+    underscores, will get them stripped for the initializer arguments by
+    default (this behavior is changeable on per-attribute basis when
+    instantiating :class:`Attribute`.
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of :class:`str` or :class:`Attribute`\ s.
