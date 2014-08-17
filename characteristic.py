@@ -313,8 +313,10 @@ def with_init(attrs, defaults=None):
                 raise ValueError(
                     "Missing keyword value for '{0}'.".format(a._kw_name)
                 )
-            if a._instance_of is not None:
-                if not isinstance(v, a._instance_of):
+            if (
+                a._instance_of is not None
+                and not isinstance(v, a._instance_of)
+            ):
                     raise TypeError(
                         "Attribute '{0}' must be an instance of '{1}'."
                         .format(a.name, a._instance_of.__name__)
