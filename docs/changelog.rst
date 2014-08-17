@@ -1,6 +1,7 @@
 Changelog
 =========
 
+- :feature:`12` Add type checks to :func:`~characteristic.with_init`\’s initializer.
 - :feature:`13` Add aliasing of private attributes for :func:`~characteristic.with_init`\’s initializer when used together with :class:`~characteristic.Attribute`.
 - :feature:`14` Add :func:`~characteristic.immutable` to make certain attributes of classes immutable.
   Also add ``make_immutable`` argument to :func:`~characteristic.attributes`.
