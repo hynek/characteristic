@@ -8,27 +8,29 @@ The difference between namedtuple_\ s and classes decorated by ``characteristic`
 
 .. doctest::
 
-   >>> from characteristic import attributes
-   >>> @attributes(["a",])
+   >>> from characteristic import Attribute, attributes
+   >>> @attributes([Attribute("a", instance_of=int)])
    ... class C1(object):
    ...     def __init__(self):
-   ...         if not isinstance(self.a, int):
-   ...             raise ValueError("'a' must be an integer.")
+   ...         if self.a >= 5:
+   ...             raise ValueError("'a' must be smaller 5!")
    ...     def print_a(self):
    ...         print self.a
-   >>> @attributes(["a",])
+   >>> @attributes([Attribute("a", instance_of=int)])
    ... class C2(object):
    ...     pass
    >>> c1 = C1(a=1)
    >>> c2 = C2(a=1)
+   >>> c1.a == c2.a
+   True
    >>> c1 == c2
    False
    >>> c1.print_a()
    1
-   >>> C1(a="hello")
+   >>> C1(a=5)
    Traceback (most recent call last):
       ...
-   ValueError: 'a' must be an integer.
+   ValueError: 'a' must be smaller 5!
 
 
 …while namedtuple’s purpose is *explicitly* to behave like tuples:
