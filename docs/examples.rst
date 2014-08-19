@@ -89,6 +89,20 @@ Guess what ``characteristic`` supports?
     ...
    AttributeError: Attribute 'a' of class 'AnotherImmutableClass' is immutable.
 
+You know what else is amazing?
+Type checks!
+
+.. doctest::
+
+   >>> @attributes([Attribute("a", instance_of=int)])
+   ... class TypeCheckedClass(object):
+   ...     pass
+   >>> TypeCheckedClass(a="totally not an int")
+   Traceback (most recent call last):
+    ...
+   TypeError: Attribute 'a' must be an instance of 'int'.
+
+
 And if you want your classes to have certain attributes private, ``characteristic`` will keep your keyword arguments clean if not told otherwise\ [*]_:
 
 .. doctest::

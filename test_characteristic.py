@@ -375,6 +375,32 @@ class TestWithInit(object):
         c = C(_a=1)
         assert 1 == c._a
 
+    def test_instance_of_fail(self):
+        """
+        Raise `TypeError` if an Attribute with an `instance_of` is is attempted
+        to be set to a mismatched type.
+        """
+        @with_init([Attribute("a", instance_of=int)])
+        class C(object):
+            pass
+        with pytest.raises(TypeError) as e:
+            C(a="not an int!")
+        assert (
+            "Attribute 'a' must be an instance of 'int'."
+            == e.value.args[0]
+        )
+
+    def test_instance_of_success(self):
+        """
+        Setting an attribute to a value that doesn't conflict with an
+        `instance_of` declaration works.
+        """
+        @with_init([Attribute("a", instance_of=int)])
+        class C(object):
+            pass
+        c = C(a=42)
+        assert 42 == c.a
+
 
 @attributes(["a", "b"], create_init=True)
 class MagicWithInitC(object):
