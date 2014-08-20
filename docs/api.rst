@@ -141,4 +141,14 @@ The easiest way to get started is to have a look at the :doc:`examples` to get a
 
 .. autofunction:: strip_leading_underscores
 
+   .. doctest::
+
+      >>> from characteristic import strip_leading_underscores
+      >>> strip_leading_underscores("_foo")
+      'foo'
+      >>> strip_leading_underscores("__bar")
+      'bar'
+      >>> strip_leading_underscores("___qux")
+      'qux'
+
 .. autodata:: NOTHING
