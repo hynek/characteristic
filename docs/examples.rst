@@ -129,7 +129,7 @@ And if you want your classes to have certain attributes private, ``characteristi
    >>> obj8 = CWithPrivateAttribute(private=42)
    >>> obj8._private
    42
-   >>> @attributes([Attribute("_private", keep_underscores=True)])
+   >>> @attributes([Attribute("_private", init_aliaser=None)])
    ... class CWithPrivateAttributeNoAliasing(object):
    ...     pass
    >>> obj9 = CWithPrivateAttributeNoAliasing(_private=42)

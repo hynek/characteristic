@@ -3,9 +3,10 @@ Changelog
 
 - :feature:`-` Add possibility to hand-pick which decorators are applied from within :func:`~characteristic.attributes`.
   A new line of arguments has been introduced for that and ``create_init`` has been deprecated.
-- :feature:`-` Add possibility to disable single attributes from certain decorators.
+- :feature:`-` Add possibility to exclude single attributes from certain decorators.
 - :feature:`12` Add type checks to :func:`~characteristic.with_init`\’s initializer.
 - :feature:`13` Add aliasing of private attributes for :func:`~characteristic.with_init`\’s initializer when used together with :class:`~characteristic.Attribute`.
+  Allow for custom aliasing via a callable.
 - :feature:`14` Add :func:`~characteristic.immutable` to make certain attributes of classes immutable.
   Also add ``apply_immutable`` argument to :func:`~characteristic.attributes`.
 - :feature:`8` Add explicit :class:`~characteristic.Attribute` class and use it for default factories.

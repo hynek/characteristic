@@ -85,12 +85,19 @@ class TestAttribute(object):
         a = Attribute("__very_private")
         assert "very_private" == a._kw_name
 
-    def test_keep_underscores(self):
+    def test_init_aliaser_none(self):
         """
-        No aliasing if keep_underscores is True.
+        No aliasing if init_aliaser is None.
         """
-        a = Attribute("_private", keep_underscores=True)
+        a = Attribute("_private", init_aliaser=None)
         assert a.name == a._kw_name
+
+    def test_init_aliaser(self):
+        """
+        Any callable works for aliasing.
+        """
+        a = Attribute("a", init_aliaser=lambda _: "foo")
+        assert "foo" == a._kw_name
 
     def test_repr(self):
         """
@@ -104,14 +111,14 @@ class TestAttribute(object):
             exclude_from_immutable=True,
             default_value=42,
             instance_of=str,
-            keep_underscores=True
+            init_aliaser=None
         )
         assert (
             "<Attribute(name='name', exclude_from_cmp=True, "
             "exclude_from_init=True, exclude_from_repr=True, "
             "exclude_from_immutable=True, "
             "default_value=42, default_factory=None, instance_of=<{0} 'str'>,"
-            " keep_underscores=True)>"
+            " init_aliaser=None)>"
         ).format("type" if PY2 else "class") == repr(a)
 
 
@@ -571,7 +578,7 @@ class TestAttributes(object):
         """
         Integration test for name mangling/aliasing.
         """
-        @attributes([Attribute("_a", keep_underscores=True)])
+        @attributes([Attribute("_a", init_aliaser=None)])
         class C(object):
             pass
         c = C(_a=42)

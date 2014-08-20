@@ -18,6 +18,7 @@ __all__ = [
     "NOTHING",
     "attributes",
     "immutable",
+    "strip_leading_underscores",
     "with_cmp",
     "with_init",
     "with_repr",
@@ -40,6 +41,20 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 .. versionadded:: 14.0
 """
+
+
+def strip_leading_underscores(attribute_name):
+    """
+    Strip leading underscores from *attribute_name*.
+
+    Used by default by the ``init_aliaser`` argument of :class:`Attribute`.
+
+    :param attribute_name: The original attribute name to mangle.
+    :type attribute_name: str
+
+    :rtype: str
+    """
+    return attribute_name.lstrip("_")
 
 
 class Attribute(object):
@@ -68,7 +83,8 @@ class Attribute(object):
 
     :param default_value: A value that is used whenever this attribute isn't
         passed as an keyword argument to a class that is decorated using
-        :func:`with_init` (or :func:`attributes` with ``create_init=True``).
+        :func:`with_init` (or :func:`attributes` with
+        ``apply_with_init=True``).
 
         Therefore, setting this makes an attribute *optional*.
 
@@ -78,26 +94,24 @@ class Attribute(object):
     :param default_factory: A factory that is used for generating default
         values whenever this attribute isn't passed as an keyword
         argument to a class that is decorated using :func:`with_init` (or
-        :func:`attributes` with ``create_init=True``).
+        :func:`attributes` with ``apply_with_init=True``).
 
         Therefore, setting this makes an attribute *optional*.
     :type default_factory: callable
 
     :param instance_of: If used together with :func:`with_init` (or
-        :func:`attributes` with ``create_init=True``), the passed value is
+        :func:`attributes` with ``apply_with_init=True``), the passed value is
         checked whether it's an instance of the type passed here.  The
         initializer then raises :exc:`TypeError` on mismatch.
     :type instance_of: type
 
-    :param keep_underscores: When using :func:`with_init` (or
-        :func:`attributes` with ``create_init=True``), the keyword arguments
-        for initializing ``_private`` and ``__very_private`` become ``private``
-        and ``very_private`` unless this option is `True`.  The attributes on
-        the class keep the underscores in any event. (default: `False`)
-
-        Please note that "dunder" attributes aren't supported by
-        :func:`with_init` yet and may never be.
-    :type keep_underscores: bool
+    :param init_aliaser: A callable that is invoked with the name of the
+        attribute and whose return value is used as the keyword argument name
+        for the ``__init__`` created by :func:`with_init` (or
+        :func:`attributes` with ``apply_with_init=True``).  Uses
+        :func:`strip_leading_underscores` by default to change ``_foo`` to
+        ``foo``.  Set to ``None`` to disable aliasing.
+    :type init_aliaser: callable
 
     :raises ValueError: If both ``default_value`` and ``default_factory`` have
         been passed.
@@ -107,7 +121,7 @@ class Attribute(object):
     __slots__ = [
         "name", "exclude_from_cmp", "exclude_from_init", "exclude_from_repr",
         "exclude_from_immutable", "default_value", "default_factory",
-        "keep_underscores", "instance_of", "_default", "_kw_name",
+        "instance_of", "init_aliaser", "_default", "_kw_name",
     ]
 
     def __init__(self,
@@ -119,7 +133,7 @@ class Attribute(object):
                  default_value=NOTHING,
                  default_factory=None,
                  instance_of=None,
-                 keep_underscores=False):
+                 init_aliaser=strip_leading_underscores):
         if (
                 default_value is not NOTHING
                 and default_factory is not None
@@ -134,22 +148,21 @@ class Attribute(object):
         self.exclude_from_init = exclude_from_init
         self.exclude_from_repr = exclude_from_repr
         self.exclude_from_immutable = exclude_from_immutable
-        self.instance_of = instance_of
-        self.keep_underscores = keep_underscores
-        if keep_underscores is False and name.startswith("__"):
-            self._kw_name = name[2:]
-        elif keep_underscores is False and name.startswith("_"):
-            self._kw_name = name[1:]
-        else:
-            self._kw_name = name
 
         self.default_value = default_value
         self.default_factory = default_factory
-
         if default_value is not NOTHING:
             self._default = default_value
         elif default_factory is None:
             self._default = NOTHING
+
+        self.instance_of = instance_of
+
+        self.init_aliaser = init_aliaser
+        if init_aliaser is not None:
+            self._kw_name = init_aliaser(name)
+        else:
+            self._kw_name = name
 
     def __getattr__(self, name):
         """
@@ -167,7 +180,7 @@ class Attribute(object):
             "{exclude_from_repr!r}, exclude_from_immutable="
             "{exclude_from_immutable!r}, default_value={default_value!r}, "
             "default_factory={default_factory!r}, instance_of={instance_of!r},"
-            " keep_underscores={keep_underscores!r})>"
+            " init_aliaser={init_aliaser!r})>"
         ).format(
             name=self.name, exclude_from_cmp=self.exclude_from_cmp,
             exclude_from_init=self.exclude_from_init,
@@ -175,7 +188,7 @@ class Attribute(object):
             exclude_from_immutable=self.exclude_from_immutable,
             default_value=self.default_value,
             default_factory=self.default_factory, instance_of=self.instance_of,
-            keep_underscores=self.keep_underscores,
+            init_aliaser=self.init_aliaser,
         )
 
 
@@ -185,7 +198,7 @@ def _ensure_attributes(attrs):
     all non-Attributes.
     """
     return [
-        Attribute(a, keep_underscores=True)
+        Attribute(a, init_aliaser=None)
         if not isinstance(a, Attribute) else a
         for a in attrs
     ]
@@ -409,11 +422,11 @@ def with_init(attrs, **kw):
                     Attribute(
                         a,
                         default_value=default_value,
-                        keep_underscores=True,
+                        init_aliaser=None,
                     )
                 )
             else:
-                new_attrs.append(Attribute(a, keep_underscores=True))
+                new_attrs.append(Attribute(a, init_aliaser=None))
 
     attrs = new_attrs
     return wrap
@@ -424,7 +437,7 @@ _VALID_INITS = frozenset(["characteristic_init", "__init__"])
 
 def immutable(attrs):
     """
-    Makes *attrs* of a class immutable.
+    Class decorator that makes *attrs* of a class immutable.
 
     That means that *attrs* can only be set from an initializer.  If anyone
     else tries to set one of them, an :exc:`AttributeError` is raised.
