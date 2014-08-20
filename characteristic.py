@@ -313,7 +313,7 @@ def with_repr(attrs):
     return wrap
 
 
-def with_init(attrs, defaults=None):
+def with_init(attrs, **kw):
     """
     A class decorator that wraps the ``__init__`` method of a class and sets
     *attrs* using passed *keyword arguments* before calling the original
@@ -342,8 +342,15 @@ def with_init(attrs, defaults=None):
     :param defaults: Default values if attributes are omitted on instantiation.
     :type defaults: ``dict`` or ``None``
     """
-    if defaults is None:
+    if "defaults" not in kw:
         defaults = {}
+    else:
+        defaults = kw["defaults"] or {}
+        warnings.warn(
+            "`defaults` has been deprecated in 14.0,  please use the "
+            "`Attribute` class instead.",
+            DeprecationWarning
+        )
 
     def characteristic_init(self, *args, **kw):
         """
@@ -458,7 +465,7 @@ def immutable(attrs):
     return wrap
 
 
-def attributes(attrs, defaults=None, apply_with_cmp=True, apply_with_init=True,
+def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
                apply_with_repr=True, apply_immutable=False, **kw):
     """
     A convenience class decorator that allows to *selectively* apply
@@ -519,6 +526,6 @@ def attributes(attrs, defaults=None, apply_with_cmp=True, apply_with_init=True,
         if apply_immutable is True:
             cl = immutable(attrs)(cl)
         if apply_with_init is True:
-            cl = with_init(attrs, defaults=defaults)(cl)
+            cl = with_init(attrs, defaults=kw.get("defaults"))(cl)
         return cl
     return wrap

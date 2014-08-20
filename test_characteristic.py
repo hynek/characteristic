@@ -462,6 +462,20 @@ class TestWithInit(object):
 
         C(b=1)
 
+    def test_deprecation_defaults(self):
+        """
+        Emits a DeprecationWarning if `defaults` is used.
+        """
+        with warnings.catch_warnings(record=True) as w:
+            @attributes(["a"], create_init=False)
+            class C(object):
+                pass
+        assert (
+            '`create_init` has been deprecated in 14.0, please use '
+            '`apply_with_init`.'
+        ) == w[0].message.args[0]
+        assert issubclass(w[0].category, DeprecationWarning)
+
 
 class TestAttributes(object):
     def test_leaves_init_alone(self):
