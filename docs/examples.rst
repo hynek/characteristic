@@ -62,12 +62,28 @@ It allows for things like default values for certain attributes, making them opt
    >>> obj6.b is obj7.b
    False
 
+You can also exclude certain attributes from certain decorators:
+
+.. doctest::
+
+   >>> @attributes(["host", "user",
+   ...              Attribute("password", exclude_from_repr=True),
+   ...              Attribute("_connection", exclude_from_init=True)])
+   ... class DB(object):
+   ...     _connection = None
+   ...     def connect(self):
+   ...         self._connection = "not really a connection"
+   >>> db = DB(host="localhost", user="dba", password="secret")
+   >>> db.connect()
+   >>> db
+   <DB(host='localhost', user='dba', _connection='not really a connection')>
+
 Immutable data structures are amazing!
 Guess what ``characteristic`` supports?
 
 .. doctest::
 
-   >>> @attributes([Attribute("a")], make_immutable=True)
+   >>> @attributes([Attribute("a")], apply_immutable=True)
    ... class ImmutableClass(object):
    ...     pass
    >>> ic = ImmutableClass(a=42)
@@ -77,7 +93,7 @@ Guess what ``characteristic`` supports?
    Traceback (most recent call last):
     ...
    AttributeError: Attribute 'a' of class 'ImmutableClass' is immutable.
-   >>> @attributes([Attribute("a")], make_immutable=True)
+   >>> @attributes([Attribute("a")], apply_immutable=True)
    ... class AnotherImmutableClass(object):
    ...     def __init__(self):
    ...         self.a *= 2

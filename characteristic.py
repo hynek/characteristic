@@ -5,6 +5,7 @@ Python attributes without boilerplate.
 """
 
 import sys
+import warnings
 
 
 __version__ = "14.0-dev"
@@ -457,20 +458,27 @@ def immutable(attrs):
     return wrap
 
 
-def attributes(attrs, defaults=None, create_init=True, make_immutable=False):
+def attributes(attrs, defaults=None, apply_with_cmp=True, apply_with_init=True,
+               apply_with_repr=True, apply_immutable=False, **kw):
     """
-    A convenience class decorator that combines :func:`with_cmp`,
-    :func:`with_repr`, and optionally :func:`with_init` and
+    A convenience class decorator that allows to *selectively* apply
+    :func:`with_cmp`, :func:`with_repr`, :func:`with_init`, and
     :func:`immutable` to avoid code duplication.
 
     :param attrs: Attributes to work with.
     :type attrs: ``list`` of :class:`str` or :class:`Attribute`\ s.
 
-    :param create_init: Also apply :func:`with_init` (default: ``True``)
-    :type create_init: bool
+    :param apply_with_cmp: Apply :func:`with_cmp`.
+    :type apply_with_cmp: bool
 
-    :param make_immutable: Also apply :func:`immutable` (default: ``False``)
-    :type make_immutable: bool
+    :param apply_with_init: Apply :func:`with_init`.
+    :type apply_with_init: bool
+
+    :param apply_with_repr: Apply :func:`with_repr`.
+    :type apply_with_repr: bool
+
+    :param apply_immutable: Also apply :func:`immutable`.
+    :type apply_immutable: bool
 
     :raises ValueError: If both *defaults* and an instance of
         :class:`Attribute` has been passed.
@@ -479,21 +487,38 @@ def attributes(attrs, defaults=None, create_init=True, make_immutable=False):
         Added possibility to pass instances of :class:`Attribute` in ``attrs``.
 
     .. versionadded:: 14.0
-        Added ``make_immutable``.
+        Added ``immutable``.
 
     .. deprecated:: 14.0
         Use :class:`Attribute` instead of ``defaults``.
 
     :param defaults: Default values if attributes are omitted on instantiation.
     :type defaults: ``dict`` or ``None``
+
+    .. deprecated:: 14.0
+        Use ``apply_with_init`` instead of ``create_init``.  Until removal, if
+        *either* if `False`, ``with_init`` is not applied.
+
+    :param create_init: Also apply :func:`with_init`.
+    :type create_init: bool
     """
+    if "create_init" in kw:
+        apply_with_init = kw["create_init"]
+        warnings.warn(
+            "`create_init` has been deprecated in 14.0, please use "
+            "`apply_with_init`.", DeprecationWarning
+        )
+
     def wrap(cl):
-        cl = with_cmp(attrs)(with_repr(attrs)(cl))
+        if apply_with_repr is True:
+            cl = with_repr(attrs)(cl)
+        if apply_with_cmp is True:
+            cl = with_cmp(attrs)(cl)
         # Order matters here because with_init can optimize and side-step
         # immutable's sentry function.
-        if make_immutable is True:
+        if apply_immutable is True:
             cl = immutable(attrs)(cl)
-        if create_init is True:
+        if apply_with_init is True:
             cl = with_init(attrs, defaults=defaults)(cl)
         return cl
     return wrap

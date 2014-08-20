@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
+import warnings
 
 import pytest
 
@@ -462,40 +463,44 @@ class TestWithInit(object):
         C(b=1)
 
 
-@attributes(["a", "b"], create_init=True)
-class MagicWithInitC(object):
-    pass
-
-
-@attributes(["a", "b"], create_init=False)
-class MagicWithoutInitC(object):
-    pass
-
-
 class TestAttributes(object):
     def test_leaves_init_alone(self):
         """
-        If *create_init* is `False`, leave __init__ alone.
+        If *apply_with_init* or *create_init* is `False`, leave __init__ alone.
         """
-        obj = MagicWithoutInitC()
+        @attributes(["a"], apply_with_init=False)
+        class C(object):
+            pass
+
+        @attributes(["a"], create_init=False)
+        class CDeprecated(object):
+            pass
+
+        obj1 = C()
+        obj2 = CDeprecated()
+
         with pytest.raises(AttributeError):
-            obj.a
+            obj1.a
         with pytest.raises(AttributeError):
-            obj.b
+            obj2.a
 
     def test_wraps_init(self):
         """
         If *create_init* is `True`, build initializer.
         """
-        obj = MagicWithInitC(a=1, b=2)
+        @attributes(["a", "b"], apply_with_init=True)
+        class C(object):
+            pass
+
+        obj = C(a=1, b=2)
         assert 1 == obj.a
         assert 2 == obj.b
 
     def test_immutable(self):
         """
-        If *make_immutable* is `True`, make class immutable.
+        If *apply_immutable* is `True`, make class immutable.
         """
-        @attributes(["a"], make_immutable=True)
+        @attributes(["a"], apply_immutable=True)
         class ImmuClass(object):
             pass
 
@@ -503,11 +508,35 @@ class TestAttributes(object):
         with pytest.raises(AttributeError):
             obj.a = "23"
 
+    def test_apply_with_cmp(self):
+        """
+        Don't add cmp methods if *apply_with_cmp* is `False`.
+        """
+        @attributes(["a"], apply_with_cmp=False)
+        class C(object):
+            pass
+
+        obj = C(a=1)
+        if PY2:
+            assert None is getattr(obj, "__eq__", None)
+        else:
+            assert object.__eq__ == C.__eq__
+
+    def test_apply_with_repr(self):
+        """
+        Don't add __repr__ if *apply_with_repr* is `False`.
+        """
+        @attributes(["a"], apply_with_repr=False)
+        class C(object):
+            pass
+
+        assert repr(C(a=1)).startswith("<test_characteristic.")
+
     def test_optimizes(self):
         """
         Uses correct order such that with_init can us __original_setattr__.
         """
-        @attributes(["a"], make_immutable=True)
+        @attributes(["a"], apply_immutable=True)
         class C(object):
             __slots__ = ["a"]
 
@@ -533,6 +562,20 @@ class TestAttributes(object):
             pass
         c = C(_a=42)
         assert 42 == c._a
+
+    def test_deprecation_create_init(self):
+        """
+        Emits a DeprecationWarning if `create_init` is used.
+        """
+        with warnings.catch_warnings(record=True) as w:
+            @attributes(["a"], create_init=False)
+            class C(object):
+                pass
+        assert (
+            '`create_init` has been deprecated in 14.0, please use '
+            '`apply_with_init`.'
+        ) == w[0].message.args[0]
+        assert issubclass(w[0].category, DeprecationWarning)
 
 
 class TestEnsureAttributes(object):
