@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
+
 import pytest
 
 from characteristic import (
@@ -12,6 +14,8 @@ from characteristic import (
     with_init,
     with_repr,
 )
+
+PY2 = sys.version_info[0] == 2
 
 
 class TestAttribute(object):
@@ -86,6 +90,28 @@ class TestAttribute(object):
         """
         a = Attribute("_private", keep_underscores=True)
         assert a.name == a._kw_name
+
+    def test_repr(self):
+        """
+        repr returns the correct string.
+        """
+        a = Attribute(
+            name="name",
+            exclude_from_cmp=True,
+            exclude_from_init=True,
+            exclude_from_repr=True,
+            exclude_from_immutable=True,
+            default_value=42,
+            instance_of=str,
+            keep_underscores=True
+        )
+        assert (
+            "<Attribute(name='name', exclude_from_cmp=True, "
+            "exclude_from_init=True, exclude_from_repr=True, "
+            "exclude_from_immutable=True, "
+            "default_value=42, default_factory=None, instance_of=<{0} 'str'>,"
+            " keep_underscores=True)>"
+        ).format("type" if PY2 else "class") == repr(a)
 
 
 @with_cmp(["a", "b"])
@@ -199,6 +225,18 @@ class TestWithCmp(object):
         """
         assert hash(CmpC(1, 2)) != hash(CmpC(1, 1))
 
+    def test_Attribute_exclude_from_cmp(self):
+        """
+        Ignores attribute if exclude_from_cmp=True.
+        """
+        @with_cmp([Attribute("a", exclude_from_cmp=True), "b"])
+        class C(object):
+            def __init__(self, a, b):
+                self.a = a
+                self.b = b
+
+        assert C(42, 1) == C(23, 1)
+
 
 @with_repr(["a", "b"])
 class ReprC(object):
@@ -213,6 +251,18 @@ class TestReprAttrs(object):
         Test repr returns a sensible value.
         """
         assert "<ReprC(a=1, b=2)>" == repr(ReprC(1, 2))
+
+    def test_Attribute_exclude_from_repr(self):
+        """
+        Ignores attribute if exclude_from_repr=True.
+        """
+        @with_repr([Attribute("a", exclude_from_repr=True), "b"])
+        class C(object):
+            def __init__(self, a, b):
+                self.a = a
+                self.b = b
+
+        assert "<C(b=2)>" == repr(C(1, 2))
 
 
 @with_init([Attribute("a"), Attribute("b")])
@@ -401,6 +451,16 @@ class TestWithInit(object):
         c = C(a=42)
         assert 42 == c.a
 
+    def test_Attribute_exclude_from_init(self):
+        """
+        Ignores attribute if exclude_from_init=True.
+        """
+        @with_init([Attribute("a", exclude_from_init=True), "b"])
+        class C(object):
+            pass
+
+        C(b=1)
+
 
 @attributes(["a", "b"], create_init=True)
 class MagicWithInitC(object):
@@ -542,6 +602,21 @@ class TestImmutable(object):
 
         i = ImmuClass(foo="qux")
         assert "qux" == i.foo
+
+    def test_Attribute_exclude_from_immutable(self):
+        """
+        Ignores attribute if exclude_from_immutable=True.
+        """
+        @immutable([Attribute("a", exclude_from_immutable=True), "b"])
+        class C(object):
+            def __init__(self, a, b):
+                self.a = a
+                self.b = b
+
+        c = C(1, 2)
+        c.a = 3
+        with pytest.raises(AttributeError):
+            c.b = 4
 
 
 def test_nothing():

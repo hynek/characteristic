@@ -7,7 +7,7 @@ Python attributes without boilerplate.
 import sys
 
 
-__version__ = "14.0dev"
+__version__ = "14.0-dev"
 __author__ = "Hynek Schlawack"
 __license__ = "MIT"
 __copyright__ = "Copyright 2014 Hynek Schlawack"
@@ -48,8 +48,22 @@ class Attribute(object):
     In the simplest case, it only consists of a name but more advanced
     properties like default values are possible too.
 
+    All attributes on the Attribute class are *read-only*.
+
     :param name: Name of the attribute.
     :type name: str
+
+    :param exclude_from_cmp: Ignore attribute in :func:`with_cmp`.
+    :type exclude_from_cmp: bool
+
+    :param exclude_from_init: Ignore attribute in :func:`with_init`.
+    :type exclude_from_init: bool
+
+    :param exclude_from_repr: Ignore attribute in :func:`with_repr`.
+    :type exclude_from_repr: bool
+
+    :param exclude_from_immutable: Ignore attribute in :func:`immutable`.
+    :type exclude_from_immutable: bool
 
     :param default_value: A value that is used whenever this attribute isn't
         passed as an keyword argument to a class that is decorated using
@@ -89,11 +103,18 @@ class Attribute(object):
 
     .. versionadded:: 14.0
     """
-    __slots__ = ["name", "_default", "_default_factory", "_kw_name",
-                 "_instance_of"]
+    __slots__ = [
+        "name", "exclude_from_cmp", "exclude_from_init", "exclude_from_repr",
+        "exclude_from_immutable", "default_value", "default_factory",
+        "keep_underscores", "instance_of", "_default", "_kw_name",
+    ]
 
     def __init__(self,
                  name,
+                 exclude_from_cmp=False,
+                 exclude_from_init=False,
+                 exclude_from_repr=False,
+                 exclude_from_immutable=False,
                  default_value=NOTHING,
                  default_factory=None,
                  instance_of=None,
@@ -108,7 +129,12 @@ class Attribute(object):
             )
 
         self.name = name
-        self._instance_of = instance_of
+        self.exclude_from_cmp = exclude_from_cmp
+        self.exclude_from_init = exclude_from_init
+        self.exclude_from_repr = exclude_from_repr
+        self.exclude_from_immutable = exclude_from_immutable
+        self.instance_of = instance_of
+        self.keep_underscores = keep_underscores
         if keep_underscores is False and name.startswith("__"):
             self._kw_name = name[2:]
         elif keep_underscores is False and name.startswith("_"):
@@ -116,21 +142,40 @@ class Attribute(object):
         else:
             self._kw_name = name
 
+        self.default_value = default_value
+        self.default_factory = default_factory
+
         if default_value is not NOTHING:
             self._default = default_value
-        elif default_factory is not None:
-            self._default_factory = default_factory
-        else:
+        elif default_factory is None:
             self._default = NOTHING
 
     def __getattr__(self, name):
         """
         If no value has been set to _default, we need to call a factory.
         """
-        if name == "_default" and self._default_factory:
-            return self._default_factory()
+        if name == "_default" and self.default_factory:
+            return self.default_factory()
         else:
             raise AttributeError
+
+    def __repr__(self):
+        return (
+            "<Attribute(name={name!r}, exclude_from_cmp={exclude_from_cmp!r}, "
+            "exclude_from_init={exclude_from_init!r}, exclude_from_repr="
+            "{exclude_from_repr!r}, exclude_from_immutable="
+            "{exclude_from_immutable!r}, default_value={default_value!r}, "
+            "default_factory={default_factory!r}, instance_of={instance_of!r},"
+            " keep_underscores={keep_underscores!r})>"
+        ).format(
+            name=self.name, exclude_from_cmp=self.exclude_from_cmp,
+            exclude_from_init=self.exclude_from_init,
+            exclude_from_repr=self.exclude_from_repr,
+            exclude_from_immutable=self.exclude_from_immutable,
+            default_value=self.default_value,
+            default_factory=self.default_factory, instance_of=self.instance_of,
+            keep_underscores=self.keep_underscores,
+        )
 
 
 def _ensure_attributes(attrs):
@@ -233,7 +278,9 @@ def with_cmp(attrs):
 
         return cl
 
-    attrs = _ensure_attributes(attrs)
+    attrs = [a
+             for a in _ensure_attributes(attrs)
+             if a.exclude_from_cmp is False]
     return wrap
 
 
@@ -259,7 +306,9 @@ def with_repr(attrs):
         cl.__repr__ = repr_
         return cl
 
-    attrs = _ensure_attributes(attrs)
+    attrs = [a
+             for a in _ensure_attributes(attrs)
+             if a.exclude_from_repr is False]
     return wrap
 
 
@@ -314,12 +363,12 @@ def with_init(attrs, defaults=None):
                     "Missing keyword value for '{0}'.".format(a._kw_name)
                 )
             if (
-                a._instance_of is not None
-                and not isinstance(v, a._instance_of)
+                a.instance_of is not None
+                and not isinstance(v, a.instance_of)
             ):
                     raise TypeError(
                         "Attribute '{0}' must be an instance of '{1}'."
-                        .format(a.name, a._instance_of.__name__)
+                        .format(a.name, a.instance_of.__name__)
                     )
             self.__characteristic_setattr__(a.name, v)
         self.__original_init__(*args, **kw)
@@ -343,7 +392,8 @@ def with_init(attrs, defaults=None):
                     "Please don't use 'defaults' anymore, it has been "
                     "deprecated in 14.0."
                 )
-            new_attrs.append(a)
+            if not a.exclude_from_init:
+                new_attrs.append(a)
         else:
             default_value = defaults.get(a)
             if default_value:
@@ -375,7 +425,8 @@ def immutable(attrs):
     """
     # In this case, we just want to compare (native) strings.
     attrs = frozenset(attr.name if isinstance(attr, Attribute) else attr
-                      for attr in _ensure_attributes(attrs))
+                      for attr in _ensure_attributes(attrs)
+                      if attr.exclude_from_immutable is False)
 
     def characteristic_immutability_sentry(self, attr, value):
         """
