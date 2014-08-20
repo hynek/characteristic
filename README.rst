@@ -23,7 +23,7 @@ You just specify the attributes to work with and ``characteristic`` gives you an
 - a nice human-readable ``__repr__``,
 - a complete set of comparison methods,
 - immutability for attributes,
-- and a kwargs-based initializer (that cooperates with your existing one)
+- and a kwargs-based initializer (that cooperates with your existing one and optionally even checks the types of the arguments)
 
 *without* writing dull boilerplate code again and again.
 

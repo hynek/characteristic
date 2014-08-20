@@ -497,7 +497,8 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
     :param apply_with_repr: Apply :func:`with_repr`.
     :type apply_with_repr: bool
 
-    :param apply_immutable: Also apply :func:`immutable`.
+    :param apply_immutable: Apply :func:`immutable`.  The only one that is off
+        by default.
     :type apply_immutable: bool
 
     :raises ValueError: If both *defaults* and an instance of
@@ -507,7 +508,7 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
         Added possibility to pass instances of :class:`Attribute` in ``attrs``.
 
     .. versionadded:: 14.0
-        Added ``immutable``.
+        Added ``apply_*``.
 
     .. deprecated:: 14.0
         Use :class:`Attribute` instead of ``defaults``.
@@ -519,7 +520,7 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
         Use ``apply_with_init`` instead of ``create_init``.  Until removal, if
         *either* if `False`, ``with_init`` is not applied.
 
-    :param create_init: Also apply :func:`with_init`.
+    :param create_init: Apply :func:`with_init`.
     :type create_init: bool
     """
     if "create_init" in kw:

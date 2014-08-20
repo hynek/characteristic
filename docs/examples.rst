@@ -7,7 +7,7 @@ Examples
 
 - a nice ``__repr__``,
 - comparison methods that compare instances as if they were tuples of their attributes,
-- and an initializer that uses the keyword arguments to initialize the specified attributes before running the class’ own initializer (you just write the validator!).
+- and an initializer that uses the keyword arguments to initialize the specified attributes before running the class' own initializer (you just write the validator if you need anything more than type checks!).
 
 
 .. doctest::
@@ -28,7 +28,7 @@ Examples
    >>> obj3 > obj1
    True
 
-To offer more power and possibilities, a distinct class :class:`~characteristic.Attribute` has been added.
+To offer more power and possibilities, ``characteristic`` comes with a distinct class to define attributes: :class:`~characteristic.Attribute`.
 It allows for things like default values for certain attributes, making them optional when ``characteristic``\ 's generated initializer is used:
 
 .. doctest::
