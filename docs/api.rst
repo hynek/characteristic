@@ -17,6 +17,12 @@ The easiest way to get started is to have a look at the :doc:`examples` to get a
 .. [*] Byte strings on Python 2 and Unicode strings on Python 3.
 
 
+.. note::
+
+   Every argument except for ``attrs`` for decorators and ``name`` for :class:`Attribute` is a **keyword argument**.
+   Their positions are coincidental and not guaranteed to remain stable.
+
+
 .. autofunction:: attributes
 
 
