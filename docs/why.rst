@@ -1,7 +1,58 @@
 .. _why:
 
-Why?
+Why…
 ====
+
+
+…not tuples?
+------------
+
+
+Readability
+^^^^^^^^^^^
+
+What does make more sense while debugging::
+
+   <Point(x=1, x=2)>
+
+or::
+
+   (1, 2)
+
+?
+
+Let's add even more ambiguity::
+
+   <Customer(id=42, reseller=23, first_name="Jane", last_name="John")>
+
+or::
+
+   (42, 23, "Jane", "John")
+
+?
+
+Why would you want to write ``customer[2]`` instead of ``customer.first_name``?
+
+Don't get me started when you add nesting.
+If you've never ran into mysterious tuples you had no idea what the hell they meant while debugging, you're much smarter then I am.
+
+Using proper classes with names and types makes program code much more readable and comprehensible_.
+Especially when trying to grok a new piece of software or returning to old code after several months.
+
+.. _comprehensible: http://arxiv.org/pdf/1304.5257.pdf
+
+
+Extendability
+^^^^^^^^^^^^^
+
+Imagine you have a function that takes or returns a tuple.
+Especially if you use tuple unpacking (eg. ``x, y = get_point()``), adding additional data means that you have to change the invocation of that function *everywhere*.
+
+Adding an attribute to a class concerns only those who actually care about that attribute.
+
+
+…not namedtuples?
+-----------------
 
 The difference between namedtuple_\ s and classes decorated by ``characteristic`` is that the latter are type-sensitive and less typing aside regular classes:
 
@@ -48,6 +99,8 @@ The difference between namedtuple_\ s and classes decorated by ``characteristic`
 
 
 This can easily lead to surprising and unintended behaviors.
+
+Other than that, ``characteristic`` also adds nifty features like type checks or default values.
 
 .. _namedtuple: https://docs.python.org/2/library/collections.html#collections.namedtuple
 .. _tuple: https://docs.python.org/2/tutorial/datastructures.html#tuples-and-sequences
