@@ -1,17 +1,17 @@
 .. _why:
 
-Why…
-====
+Why not…
+========
 
 
-…not tuples?
-------------
+…tuples?
+--------
 
 
 Readability
 ^^^^^^^^^^^
 
-What does make more sense while debugging::
+What makes more sense while debugging::
 
    <Point(x=1, x=2)>
 
@@ -51,8 +51,8 @@ Especially if you use tuple unpacking (eg. ``x, y = get_point()``), adding addit
 Adding an attribute to a class concerns only those who actually care about that attribute.
 
 
-…not namedtuples?
------------------
+…namedtuples?
+-------------
 
 The difference between namedtuple_\ s and classes decorated by ``characteristic`` is that the latter are type-sensitive and less typing aside regular classes:
 
@@ -106,8 +106,8 @@ Other than that, ``characteristic`` also adds nifty features like type checks or
 .. _tuple: https://docs.python.org/2/tutorial/datastructures.html#tuples-and-sequences
 
 
-…not hand-written classes?
---------------------------
+…hand-written classes?
+----------------------
 
 While I'm a fan of all things artisanal, writing the same nine methods all over again doesn't qualify for me.
 I usually manage to get some typos inside and there's simply more code that can break and thus has to be tested.
