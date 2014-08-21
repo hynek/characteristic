@@ -8,7 +8,7 @@ import sys
 import warnings
 
 
-__version__ = "14.0.0"
+__version__ = "14.1.0-dev"
 __author__ = "Hynek Schlawack"
 __license__ = "MIT"
 __copyright__ = "Copyright 2014 Hynek Schlawack"
