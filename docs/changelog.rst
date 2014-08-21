@@ -1,6 +1,7 @@
 Changelog
 =========
 
+- :release:`14.0.0 <2014-08-21>`
 - :feature:`-` Add possibility to hand-pick which decorators are applied from within :func:`~characteristic.attributes`.
   A new line of arguments has been introduced for that and ``create_init`` has been deprecated.
 - :feature:`-` Add possibility to exclude single attributes from certain decorators.
