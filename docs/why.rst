@@ -109,7 +109,7 @@ Other than that, ``characteristic`` also adds nifty features like type checks or
 …not hand-written classes?
 --------------------------
 
-While I'm a fan of all things artisanal, writing the same fives methods all over again doesn't qualify for me.
+While I'm a fan of all things artisanal, writing the same nine methods all over again doesn't qualify for me.
 I usually manage to get some typos inside and there's simply more code that can break and thus has to be tested.
 
 To bring it into perspective, the equivalent of
