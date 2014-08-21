@@ -112,5 +112,73 @@ Other than that, ``characteristic`` also adds nifty features like type checks or
 While I'm a fan of all things artisanal, writing the same fives methods all over again doesn't qualify for me.
 I usually manage to get some typos inside and there's simply more code that can break and thus has to be tested.
 
+To bring it into perspective, the equivalent of
+
+.. doctest::
+
+   >>> @attributes(["a", "b"])
+   ... class SmartClass(object):
+   ...     pass
+   >>> SmartClass(a=1, b=2)
+   <SmartClass(a=1, b=2)>
+
+is
+
+.. doctest::
+
+   >>> class ArtisinalClass(object):
+   ...     def __init__(self, a, b):
+   ...         self.a = a
+   ...         self.b = b
+   ...
+   ...     def __repr__(self):
+   ...         return "<ArtisinalClass(a={}, b={})>".format(self.a, self.b)
+   ...
+   ...     def __eq__(self, other):
+   ...         if other.__class__ is self.__class__:
+   ...             return (self.a, self.b) == (other.a, other.b)
+   ...         else:
+   ...             return NotImplemented
+   ...
+   ...     def __ne__(self, other):
+   ...         result = self.__eq__(other)
+   ...         if result is NotImplemented:
+   ...             return NotImplemented
+   ...         else:
+   ...             return not result
+   ...
+   ...     def __lt__(self, other):
+   ...         if other.__class__ is self.__class__:
+   ...             return (self.a, self.b) < (other.a, other.b)
+   ...         else:
+   ...             return NotImplemented
+   ...
+   ...     def __le__(self, other):
+   ...         if other.__class__ is self.__class__:
+   ...             return (self.a, self.b) <= (other.a, other.b)
+   ...         else:
+   ...             return NotImplemented
+   ...
+   ...     def __gt__(self, other):
+   ...         if other.__class__ is self.__class__:
+   ...             return (self.a, self.b) > (other.a, other.b)
+   ...         else:
+   ...             return NotImplemented
+   ...
+   ...     def __ge__(self, other):
+   ...         if other.__class__ is self.__class__:
+   ...             return (self.a, self.b) >= (other.a, other.b)
+   ...         else:
+   ...             return NotImplemented
+   ...
+   ...     def __hash__(self):
+   ...         return hash((self.a, self.b))
+   >>> ArtisinalClass(a=1, b=2)
+   <ArtisinalClass(a=1, b=2)>
+
+which is quite a mouthful and it doesn't even use any of ``characteristic``'s more advanced features like type checks or default values
+Also: no tests whatsoever.
+And who will guarantee you, that you don't accidentally flip the ``<`` in your tenth implementation of ``__gt__``?
+
 If you don't care and like typing, I'm not gonna stop you.
-But if you ever get sick of the repetitiveness ``characteristic`` will be waiting for you. :)
+But if you ever get sick of the repetitiveness, ``characteristic`` will be waiting for you. :)
