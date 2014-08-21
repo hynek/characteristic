@@ -104,3 +104,13 @@ Other than that, ``characteristic`` also adds nifty features like type checks or
 
 .. _namedtuple: https://docs.python.org/2/library/collections.html#collections.namedtuple
 .. _tuple: https://docs.python.org/2/tutorial/datastructures.html#tuples-and-sequences
+
+
+…not hand-written classes?
+--------------------------
+
+While I'm a fan of all things artisanal, writing the same fives methods all over again doesn't qualify for me.
+I usually manage to get some typos inside and there's simply more code that can break and thus has to be tested.
+
+If you don't care and like typing, I'm not gonna stop you.
+But if you ever get sick of the repetitiveness ``characteristic`` will be waiting for you. :)
