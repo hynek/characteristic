@@ -200,10 +200,10 @@ def _ensure_attributes(attrs, defaults):
     if defaults is not NOTHING:
         defaults = defaults or {}
         warnings.warn(
-            "`defaults` has been deprecated in 14.0,  please use the "
+            "`defaults` has been deprecated in 14.0, please use the "
             "`Attribute` class instead.",
             DeprecationWarning,
-            stacklevel=4,
+            stacklevel=3,
         )
     else:
         defaults = {}
@@ -524,7 +524,8 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
         apply_with_init = kw["create_init"]
         warnings.warn(
             "`create_init` has been deprecated in 14.0, please use "
-            "`apply_with_init`.", DeprecationWarning
+            "`apply_with_init`.", DeprecationWarning,
+            stacklevel=2,
         )
     attrs = _ensure_attributes(attrs, defaults=kw.get("defaults", NOTHING))
 

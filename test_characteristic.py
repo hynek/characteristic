@@ -480,7 +480,7 @@ class TestWithInit(object):
             class C(object):
                 pass
         assert (
-            '`defaults` has been deprecated in 14.0,  please use the '
+            '`defaults` has been deprecated in 14.0, please use the '
             '`Attribute` class instead.'
         ) == w[0].message.args[0]
         assert issubclass(w[0].category, DeprecationWarning)
@@ -609,7 +609,7 @@ class TestAttributes(object):
             class C(object):
                 pass
         assert (
-            '`defaults` has been deprecated in 14.0,  please use the '
+            '`defaults` has been deprecated in 14.0, please use the '
             '`Attribute` class instead.'
         ) == w[0].message.args[0]
         assert issubclass(w[0].category, DeprecationWarning)
