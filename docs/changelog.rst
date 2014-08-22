@@ -44,7 +44,7 @@ Backward-incompatible changes:
 Deprecations:
 ^^^^^^^^^^^^^
 
-- The ``defaults`` argument of :func:`~characteristic.with_init` and :func:`~characteristic.attributes` has been deprecated in favor of the new explicit :class:`~characteristic.Attribute` class.
+- The ``defaults`` argument of :func:`~characteristic.with_init` and :func:`~characteristic.attributes` has been deprecated in favor of the new explicit :class:`~characteristic.Attribute` class and it's superior ``default_value`` and ``default_factory`` arguments.
 - The ``create_init`` argument of :func:`~characteristic.attributes` has been deprecated in favor of the new ``apply_with_init`` argument for the sake of consistency.
 
 
