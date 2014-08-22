@@ -18,6 +18,8 @@ from characteristic import (
 
 PY2 = sys.version_info[0] == 2
 
+warnings.simplefilter("always")
+
 
 class TestAttribute(object):
     def test_init_simple(self):
@@ -474,12 +476,12 @@ class TestWithInit(object):
         Emits a DeprecationWarning if `defaults` is used.
         """
         with warnings.catch_warnings(record=True) as w:
-            @attributes(["a"], create_init=False)
+            @with_init(["a"], defaults={"a": 42})
             class C(object):
                 pass
         assert (
-            '`create_init` has been deprecated in 14.0, please use '
-            '`apply_with_init`.'
+            '`defaults` has been deprecated in 14.0,  please use the '
+            '`Attribute` class instead.'
         ) == w[0].message.args[0]
         assert issubclass(w[0].category, DeprecationWarning)
 
@@ -598,6 +600,20 @@ class TestAttributes(object):
         ) == w[0].message.args[0]
         assert issubclass(w[0].category, DeprecationWarning)
 
+    def test_deprecation_defaults(self):
+        """
+        Emits a DeprecationWarning if `defaults` is used.
+        """
+        with warnings.catch_warnings(record=True) as w:
+            @attributes(["a"], defaults={"a": 42})
+            class C(object):
+                pass
+        assert (
+            '`defaults` has been deprecated in 14.0,  please use the '
+            '`Attribute` class instead.'
+        ) == w[0].message.args[0]
+        assert issubclass(w[0].category, DeprecationWarning)
+
 
 class TestEnsureAttributes(object):
     def test_leaves_attribute_alone(self):
@@ -605,15 +621,29 @@ class TestEnsureAttributes(object):
         List items that are an Attribute stay an Attribute.
         """
         a = Attribute("a")
-        assert a is _ensure_attributes([a])[0]
+        assert a is _ensure_attributes([a], {})[0]
 
     def test_converts_rest(self):
         """
         Any other item will be transformed into an Attribute.
         """
-        l = _ensure_attributes(["a"])
+        l = _ensure_attributes(["a"], {})
         assert isinstance(l[0], Attribute)
         assert "a" == l[0].name
+
+    def test_defaults(self):
+        """
+        Legacy defaults are translated into default_value attributes.
+        """
+        l = _ensure_attributes(["a"], {"a": 42})
+        assert 42 == l[0].default_value
+
+    def test_defaults_Attribute(self):
+        """
+        Raises ValueError on defaults != {} and an Attribute within attrs.
+        """
+        with pytest.raises(ValueError):
+            _ensure_attributes([Attribute("a")], defaults={"a": 42})
 
 
 class TestImmutable(object):

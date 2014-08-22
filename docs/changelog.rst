@@ -26,7 +26,9 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
--
+- Fix stray deprecation warnings.
+- Don't rely on warnings being switched on by command line.
+  [`17 <https://github.com/hynek/characteristic/issues/17>`_]
 
 
 14.0.0 (2014-08-21)
