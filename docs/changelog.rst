@@ -31,6 +31,9 @@ Changes:
   [`17 <https://github.com/hynek/characteristic/issues/17>`_]
 
 
+----
+
+
 14.0.0 (2014-08-21)
 -------------------
 
@@ -64,6 +67,9 @@ Changes:
   [`12 <https://github.com/hynek/characteristic/issues/13>`_]
 - Add possibility to hand-pick which decorators are applied from within :func:`~characteristic.attributes`.
 - Add possibility to exclude single attributes from certain decorators.
+
+
+----
 
 
 0.1.0 (2014-05-11)
