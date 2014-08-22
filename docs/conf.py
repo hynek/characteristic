@@ -59,16 +59,11 @@ def find_version(*file_paths):
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'releases',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
 ]
-
-# 'releases' (changelog) settings
-releases_issue_uri = "https://github.com/hynek/characteristic/issues/%s"
-releases_release_uri = "https://github.com/hynek/characteristic/tree/%s"
 
 
 # Add any paths that contain templates here, relative to this directory.
