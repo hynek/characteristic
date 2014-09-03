@@ -520,14 +520,23 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
     :param create_init: Apply :func:`with_init`.
     :type create_init: bool
     """
-    if "create_init" in kw:
-        apply_with_init = kw["create_init"]
+
+    create_init = kw.pop("create_init", None)
+    if create_init is not None:
+        apply_with_init = create_init
         warnings.warn(
             "`create_init` has been deprecated in 14.0, please use "
             "`apply_with_init`.", DeprecationWarning,
             stacklevel=2,
         )
-    attrs = _ensure_attributes(attrs, defaults=kw.get("defaults", NOTHING))
+    attrs = _ensure_attributes(attrs, defaults=kw.pop("defaults", NOTHING))
+
+    if kw:
+        raise TypeError(
+            "attributes() got an unexpected keyword argument {0!r}".format(
+                next(iter(kw)),
+            )
+        )
 
     def wrap(cl):
         if apply_with_repr is True:
