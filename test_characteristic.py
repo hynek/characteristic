@@ -614,6 +614,18 @@ class TestAttributes(object):
         ) == w[0].message.args[0]
         assert issubclass(w[0].category, DeprecationWarning)
 
+    def test_does_not_allow_extra_keyword_arguments(self):
+        """
+        Keyword arguments other than the ones consumed are still TypeErrors.
+        """
+        with pytest.raises(TypeError) as e:
+            @attributes(["a"], not_an_arg=12)
+            class C(object):
+                pass
+        assert e.value.args == (
+            "attributes() got an unexpected keyword argument 'not_an_arg'",
+        )
+
 
 class TestEnsureAttributes(object):
     def test_leaves_attribute_alone(self):
