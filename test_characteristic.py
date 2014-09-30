@@ -157,16 +157,18 @@ class TestWithCmp(object):
         assert CmpC(1, 2) != NotCmpC()
         assert not (CmpC(1, 2) == NotCmpC())
 
-    def test_lt(self):
+    @pytest.mark.parametrize(
+        "a,b", [
+            ((1, 2), (2, 1)),
+            ((1, 2), (1, 3)),
+            (("a", "b"), ("b", "a")),
+        ]
+    )
+    def test_lt(self, a, b):
         """
         __lt__ compares objects as tuples of attribute values.
         """
-        for a, b in [
-            ((1, 2),  (2, 1)),
-            ((1, 2),  (1, 3)),
-            (("a", "b"), ("b", "a")),
-        ]:
-            assert CmpC(*a) < CmpC(*b)
+        assert CmpC(*a) < CmpC(*b)
 
     def test_lt_unordable(self):
         """
@@ -174,18 +176,20 @@ class TestWithCmp(object):
         """
         assert NotImplemented == (CmpC(1, 2).__lt__(42))
 
-    def test_le(self):
-        """
-        __le__ compares objects as tuples of attribute values.
-        """
-        for a, b in [
+    @pytest.mark.parametrize(
+        "a,b", [
             ((1, 2),  (2, 1)),
             ((1, 2),  (1, 3)),
             ((1, 1),  (1, 1)),
             (("a", "b"), ("b", "a")),
             (("a", "b"), ("a", "b")),
-        ]:
-            assert CmpC(*a) <= CmpC(*b)
+        ]
+    )
+    def test_le(self, a, b):
+        """
+        __le__ compares objects as tuples of attribute values.
+        """
+        assert CmpC(*a) <= CmpC(*b)
 
     def test_le_unordable(self):
         """
@@ -193,16 +197,18 @@ class TestWithCmp(object):
         """
         assert NotImplemented == (CmpC(1, 2).__le__(42))
 
-    def test_gt(self):
-        """
-        __gt__ compares objects as tuples of attribute values.
-        """
-        for a, b in [
+    @pytest.mark.parametrize(
+        "a,b", [
             ((2, 1), (1, 2)),
             ((1, 3), (1, 2)),
             (("b", "a"), ("a", "b")),
-        ]:
-            assert CmpC(*a) > CmpC(*b)
+        ]
+    )
+    def test_gt(self, a, b):
+        """
+        __gt__ compares objects as tuples of attribute values.
+        """
+        assert CmpC(*a) > CmpC(*b)
 
     def test_gt_unordable(self):
         """
@@ -210,18 +216,20 @@ class TestWithCmp(object):
         """
         assert NotImplemented == (CmpC(1, 2).__gt__(42))
 
-    def test_ge(self):
-        """
-        __ge__ compares objects as tuples of attribute values.
-        """
-        for a, b in [
+    @pytest.mark.parametrize(
+        "a,b", [
             ((2, 1), (1, 2)),
             ((1, 3), (1, 2)),
             ((1, 1), (1, 1)),
             (("b", "a"), ("a", "b")),
             (("a", "b"), ("a", "b")),
-        ]:
-            assert CmpC(*a) >= CmpC(*b)
+        ]
+    )
+    def test_ge(self, a, b):
+        """
+        __ge__ compares objects as tuples of attribute values.
+        """
+        assert CmpC(*a) >= CmpC(*b)
 
     def test_ge_unordable(self):
         """
