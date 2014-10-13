@@ -563,6 +563,45 @@ class TestAttributes(object):
 
         assert repr(C(a=1)).startswith("<test_characteristic.")
 
+    def test_store_attributes(self):
+        """
+        store_attributes is called on the class to store the attributes that
+        were passed in.
+        """
+        attrs = [Attribute("a"), Attribute("b")]
+
+        @attributes(
+            attrs, store_attributes=lambda cls, a: setattr(cls, "foo", a)
+        )
+        class C(object):
+            pass
+
+        assert C.foo == attrs
+
+    def test_store_attributes_stores_Attributes(self):
+        """
+        The attributes passed to store_attributes are always instances of
+        Attribute, even if they were simple strings when provided.
+        """
+        @attributes(["a", "b"])
+        class C(object):
+            pass
+
+        assert C.characteristic_attributes == [Attribute("a"), Attribute("b")]
+
+    def test_store_attributes_defaults_to_characteristic_attributes(self):
+        """
+        By default, store_attributes stores the attributes in
+        `characteristic_attributes` on the class.
+        """
+        attrs = [Attribute("a")]
+
+        @attributes(attrs)
+        class C(object):
+            pass
+
+        assert C.characteristic_attributes == attrs
+
     def test_optimizes(self):
         """
         Uses correct order such that with_init can us __original_setattr__.
