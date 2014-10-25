@@ -123,6 +123,45 @@ class TestAttribute(object):
             " init_aliaser=None)>"
         ).format("type" if PY2 else "class") == repr(a)
 
+    def test_eq_different_types(self):
+        """
+        Comparing Attribute with something else returns NotImplemented.
+        """
+        assert NotImplemented == Attribute(name="name").__eq__(None)
+
+    def test_eq_equal(self):
+        """
+        Equal Attributes are detected equal.
+        """
+        kw = {
+            "name": "name",
+            "exclude_from_cmp": True,
+            "exclude_from_init": False,
+            "exclude_from_repr": True,
+            "exclude_from_immutable": False,
+            "default_value": 42,
+            "instance_of": int,
+        }
+        assert Attribute(**kw) == Attribute(**kw)
+
+    def test_eq_unequal(self):
+        """
+        Equal Attributes are detected equal.
+        """
+        kw = {
+            "name": "name",
+            "exclude_from_cmp": True,
+            "exclude_from_init": False,
+            "exclude_from_repr": True,
+            "exclude_from_immutable": False,
+            "default_value": 42,
+            "instance_of": int,
+        }
+        for arg in kw.keys():
+            kw_mutated = dict(**kw)
+            kw_mutated[arg] = "mutated"
+            assert Attribute(**kw) != Attribute(**kw_mutated)
+
 
 @with_cmp(["a", "b"])
 class CmpC(object):
