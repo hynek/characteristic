@@ -37,6 +37,8 @@ It allows for things like default values for certain attributes, making them opt
    ... class CWithDefaults(object):
    ...     pass
    >>> obj4 = CWithDefaults(a=1, b=2)
+   >>> obj4.characteristic_attributes
+   [<Attribute(name='a', exclude_from_cmp=False, exclude_from_init=False, exclude_from_repr=False, exclude_from_immutable=False, default_value=NOTHING, default_factory=None, instance_of=None, init_aliaser=None)>, <Attribute(name='b', exclude_from_cmp=False, exclude_from_init=False, exclude_from_repr=False, exclude_from_immutable=False, default_value=NOTHING, default_factory=None, instance_of=None, init_aliaser=None)>, <Attribute(name='c', exclude_from_cmp=False, exclude_from_init=False, exclude_from_repr=False, exclude_from_immutable=False, default_value=42, default_factory=None, instance_of=None, init_aliaser=<function strip_leading_underscores at ...>)>]
    >>> obj5 = CWithDefaults(a=1, b=2, c=42)
    >>> obj4 == obj5
    True

@@ -1,3 +1,5 @@
+.. currentmodule:: characteristic
+
 .. :changelog:
 
 Changelog
@@ -26,7 +28,8 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
--
+- Attributes set by :func:`characteristic.attributes` are now stored on the class as well.
+  [`20 <https://github.com/hynek/characteristic/pull/20>`_]
 
 
 ----

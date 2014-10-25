@@ -164,6 +164,23 @@ class Attribute(object):
         else:
             self._kw_name = name
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return (
+            self.name == other.name and
+            self.exclude_from_cmp == other.exclude_from_cmp and
+            self.exclude_from_init == other.exclude_from_init and
+            self.exclude_from_repr == other.exclude_from_repr and
+            self.exclude_from_immutable == other.exclude_from_immutable and
+            self.default_value == other.default_value and
+            self.default_factory == other.default_factory and
+            self.instance_of == other.instance_of
+        )
+
+    def __ne__(self, other):
+        return not self == other
+
     def __getattr__(self, name):
         """
         If no value has been set to _default, we need to call a factory.
@@ -475,8 +492,16 @@ def immutable(attrs):
     return wrap
 
 
+def _default_store_attributes(cls, attrs):
+    """
+    Store attributes in :attr:`characteristic_attributes` on the class.
+    """
+    cls.characteristic_attributes = attrs
+
+
 def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
-               apply_with_repr=True, apply_immutable=False, **kw):
+               apply_with_repr=True, apply_immutable=False,
+               store_attributes=_default_store_attributes, **kw):
     """
     A convenience class decorator that allows to *selectively* apply
     :func:`with_cmp`, :func:`with_repr`, :func:`with_init`, and
@@ -498,6 +523,14 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
         by default.
     :type apply_immutable: bool
 
+    :param store_attributes: Store the given ``attr``\ s on the class.
+        Should accept two arguments, the class and the attributes, in that
+        order. Note that attributes passed in will always be instances of
+        :class:`Attribute`\ , (so simple string attributes will already have
+        been converted). By default if unprovided, attributes are stored in
+        a ``characteristic_attributes`` attribute on the class.
+    :type store_attributes: callable
+
     :raises ValueError: If both *defaults* and an instance of
         :class:`Attribute` has been passed.
 
@@ -506,6 +539,9 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
 
     .. versionadded:: 14.0
         Added ``apply_*``.
+
+    .. versionadded:: 14.2
+        Added ``store_attributes``.
 
     .. deprecated:: 14.0
         Use :class:`Attribute` instead of ``defaults``.
@@ -539,6 +575,8 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
         )
 
     def wrap(cl):
+        store_attributes(cl, attrs)
+
         if apply_with_repr is True:
             cl = with_repr(attrs)(cl)
         if apply_with_cmp is True:
