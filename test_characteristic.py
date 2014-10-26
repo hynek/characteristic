@@ -816,3 +816,11 @@ def test_nothing():
     ``NOTHING`` has a sensible repr.
     """
     assert "NOTHING" == repr(NOTHING)
+
+
+def test_doc():
+    """
+    The characteristic module has a docstring.
+    """
+    import characteristic
+    assert characteristic.__doc__

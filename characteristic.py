@@ -1,8 +1,8 @@
-from __future__ import absolute_import, division, print_function
-
 """
 Python attributes without boilerplate.
 """
+
+from __future__ import absolute_import, division, print_function
 
 import sys
 import warnings
