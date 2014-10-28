@@ -26,6 +26,8 @@ __all__ = [
     "with_repr",
 ]
 
+PY26 = sys.version_info[0:2] == (2, 6)
+
 # I'm sorry. :(
 if sys.version_info[0] == 2:
     def exec_(code, locals_, globals_):
@@ -578,6 +580,53 @@ def _attrs_to_script(attrs):
     """
     Return a valid Python script of a initializer for `attrs`.
     """
+    if all(a.default_value is NOTHING
+           and a.default_factory is None
+           and a.instance_of is None
+           for a in attrs) and not PY26:
+        # Simple version does not work with Python 2.6 because of
+        # http://bugs.python.org/issue10221
+        lines = _simple_init(attrs)
+    else:
+        lines = _verbose_init(attrs)
+
+    return """\
+def characteristic_init(self, *args, **kw):
+    '''
+    Attribute initializer automatically created by characteristic.
+
+    The original `__init__` method is renamed to `__original_init__` and
+    is called at the end with the initialized attributes removed from the
+    keyword arguments.
+    '''
+    {setters}
+    self.__original_init__(*args, **kw)
+""".format(setters="\n    ".join(lines))
+
+
+def _simple_init(attrs):
+    """
+    Create an init for `attrs` that doesn't care about defaults or default
+    factories.  This is a common case thus it's worth optimizing for.
+    """
+    lines = ["try:"]
+    for a in attrs:
+        lines.append("    self.{a.name} = kw.pop('{a._kw_name}')".format(a=a))
+
+    lines += [
+        "except KeyError as e:",
+        "     raise ValueError(\"Missing keyword value for "
+        "'%s'.\" % (e.args[0],))"
+        .format(a=a),
+    ]
+    return lines
+
+
+def _verbose_init(attrs):
+    """
+    Create return a list of lines that initialize `attrs` while honoring
+    default values.
+    """
     lines = []
     for i, a in enumerate(attrs):
         # attrs is passed into the the exec later to enable default_value
@@ -592,8 +641,6 @@ def _attrs_to_script(attrs):
             )
         )
         if a.default_value is NOTHING:
-            # Can't use pop + big try/except because Python 2.6:
-            # http://bugs.python.org/issue10221
             lines.append("if self.{a.name} is NOTHING:".format(a=a))
             if a.default_factory is None:
                 lines.append(
@@ -616,15 +663,4 @@ def _attrs_to_script(attrs):
                 .format(a=a, type_name=a.instance_of.__name__)
             )
 
-    return """\
-def characteristic_init(self, *args, **kw):
-    '''
-    Attribute initializer automatically created by characteristic.
-
-    The original `__init__` method is renamed to `__original_init__` and
-    is called at the end with the initialized attributes removed from the
-    keyword arguments.
-    '''
-    {setters}
-    self.__original_init__(*args, **kw)
-""".format(setters="\n    ".join(lines))
+    return lines

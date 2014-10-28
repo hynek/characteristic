@@ -9,6 +9,8 @@ import pytest
 from characteristic import (
     Attribute,
     NOTHING,
+    PY26,
+    _attrs_to_script,
     _ensure_attributes,
     attributes,
     immutable,
@@ -828,6 +830,18 @@ class TestImmutable(object):
         c.a = 3
         with pytest.raises(AttributeError):
             c.b = 4
+
+
+class TestAttrsToScript(object):
+    @pytest.mark.skipif(PY26, reason="Optimization works only on Python 2.7.")
+    def test_optimizes_simple(self):
+        """
+        If no defaults and extra checks are passed, an optimized version is
+        used on Python 2.7+.
+        """
+        attrs = [Attribute("a")]
+        script = _attrs_to_script(attrs)
+        assert "except KeyError as e:" in script
 
 
 def test_nothing():
