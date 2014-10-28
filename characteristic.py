@@ -566,8 +566,6 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
             cl = with_repr(attrs)(cl)
         if apply_with_cmp is True:
             cl = with_cmp(attrs)(cl)
-        # Order matters here because with_init can optimize and side-step
-        # immutable's sentry function.
         if apply_immutable is True:
             cl = immutable(attrs)(cl)
         if apply_with_init is True:
