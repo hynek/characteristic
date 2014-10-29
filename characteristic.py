@@ -578,7 +578,7 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
 
 def _attrs_to_script(attrs):
     """
-    Return a valid Python script of a initializer for `attrs`.
+    Return a valid Python script of an initializer for *attrs*.
     """
     if all(a.default_value is NOTHING
            and a.default_factory is None
@@ -606,8 +606,9 @@ def characteristic_init(self, *args, **kw):
 
 def _simple_init(attrs):
     """
-    Create an init for `attrs` that doesn't care about defaults or default
-    factories.  This is a common case thus it's worth optimizing for.
+    Create an init for *attrs* that doesn't care about defaults, default
+    factories, or argument validators.  This is a common case thus it's worth
+    optimizing for.
     """
     lines = ["try:"]
     for a in attrs:
@@ -624,7 +625,7 @@ def _simple_init(attrs):
 
 def _verbose_init(attrs):
     """
-    Create return a list of lines that initialize `attrs` while honoring
+    Create return a list of lines that initialize *attrs* while honoring
     default values.
     """
     lines = []
