@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import linecache
 import sys
 import warnings
 
@@ -8,6 +9,8 @@ import pytest
 from characteristic import (
     Attribute,
     NOTHING,
+    PY26,
+    _attrs_to_script,
     _ensure_attributes,
     attributes,
     immutable,
@@ -28,7 +31,7 @@ class TestAttribute(object):
         """
         a = Attribute("foo")
         assert "foo" == a.name
-        assert NOTHING is a._default
+        assert NOTHING is a.default_value
 
     def test_init_default_factory(self):
         """
@@ -36,14 +39,15 @@ class TestAttribute(object):
         _default.
         """
         a = Attribute("foo", default_factory=list)
-        assert list() == a._default
+        assert NOTHING is a.default_value
+        assert list() == a.default_factory()
 
     def test_init_default_value(self):
         """
         Instantiating with default_value initializes default properly.
         """
         a = Attribute("foo", default_value="bar")
-        assert "bar" == a._default
+        assert "bar" == a.default_value
 
     def test_ambiguous_defaults(self):
         """
@@ -439,29 +443,6 @@ class TestWithInit(object):
         o2 = C()
         assert o1.a is not o2.a
 
-    def test_optimizes(self):
-        """
-        Uses __original_setattr__ if possible.
-        """
-        @immutable(["a"])
-        @with_init(["a"])
-        class C(object):
-            pass
-
-        c = C(a=42)
-        assert c.__original_setattr__ == c.__characteristic_setattr__
-
-    def test_setattr(self):
-        """
-        Uses setattr by default.
-        """
-        @with_init(["a"])
-        class C(object):
-            pass
-
-        c = C(a=42)
-        assert c.__setattr__ == c.__characteristic_setattr__
-
     def test_underscores(self):
         """
         with_init takes keyword aliasing into account.
@@ -531,6 +512,57 @@ class TestWithInit(object):
             '`Attribute` class instead.'
         ) == w[0].message.args[0]
         assert issubclass(w[0].category, DeprecationWarning)
+
+    def test_linecache(self):
+        """
+        The created init method is added to the linecache so PDB shows it
+        properly.
+        """
+        attrs = [Attribute("a")]
+
+        @with_init(attrs)
+        class C(object):
+            pass
+
+        assert tuple == type(linecache.cache[C.__init__.__code__.co_filename])
+
+    def test_linecache_attrs_unique(self):
+        """
+        If the attributes are the same, only one linecache entry is created.
+        Since the key within the cache is the filename, this effectively means
+        that the filenames must be equal if the attributes are equal.
+        """
+        attrs = [Attribute("a")]
+
+        @with_init(attrs[:])
+        class C1(object):
+            pass
+
+        @with_init(attrs[:])
+        class C2(object):
+            pass
+
+        assert (
+            C1.__init__.__code__.co_filename
+            == C2.__init__.__code__.co_filename
+        )
+
+    def test_linecache_different_attrs(self):
+        """
+        Different Attributes have different generated filenames.
+        """
+        @with_init([Attribute("a")])
+        class C1(object):
+            pass
+
+        @with_init([Attribute("b")])
+        class C2(object):
+            pass
+
+        assert (
+            C1.__init__.__code__.co_filename
+            != C2.__init__.__code__.co_filename
+        )
 
 
 class TestAttributes(object):
@@ -640,17 +672,6 @@ class TestAttributes(object):
             pass
 
         assert C.characteristic_attributes == attrs
-
-    def test_optimizes(self):
-        """
-        Uses correct order such that with_init can us __original_setattr__.
-        """
-        @attributes(["a"], apply_immutable=True)
-        class C(object):
-            __slots__ = ["a"]
-
-        c = C(a=42)
-        assert c.__original_setattr__ == c.__characteristic_setattr__
 
     def test_private(self):
         """
@@ -809,6 +830,18 @@ class TestImmutable(object):
         c.a = 3
         with pytest.raises(AttributeError):
             c.b = 4
+
+
+class TestAttrsToScript(object):
+    @pytest.mark.skipif(PY26, reason="Optimization works only on Python 2.7.")
+    def test_optimizes_simple(self):
+        """
+        If no defaults and extra checks are passed, an optimized version is
+        used on Python 2.7+.
+        """
+        attrs = [Attribute("a")]
+        script = _attrs_to_script(attrs)
+        assert "except KeyError as e:" in script
 
 
 def test_nothing():

@@ -4,6 +4,8 @@ Python attributes without boilerplate.
 
 from __future__ import absolute_import, division, print_function
 
+import hashlib
+import linecache
 import sys
 import warnings
 
@@ -23,6 +25,16 @@ __all__ = [
     "with_init",
     "with_repr",
 ]
+
+PY26 = sys.version_info[0:2] == (2, 6)
+
+# I'm sorry. :(
+if sys.version_info[0] == 2:
+    def exec_(code, locals_, globals_):
+        exec("exec code in locals_, globals_")
+else:  # pragma: no cover
+    def exec_(code, locals_, globals_):
+        exec(code, locals_, globals_)
 
 
 class _Nothing(object):
@@ -121,7 +133,7 @@ class Attribute(object):
     __slots__ = [
         "name", "exclude_from_cmp", "exclude_from_init", "exclude_from_repr",
         "exclude_from_immutable", "default_value", "default_factory",
-        "instance_of", "init_aliaser", "_default", "_kw_name",
+        "instance_of", "init_aliaser", "_kw_name",
     ]
 
     def __init__(self,
@@ -151,11 +163,6 @@ class Attribute(object):
 
         self.default_value = default_value
         self.default_factory = default_factory
-        if default_value is not NOTHING:
-            self._default = default_value
-        elif default_factory is None:
-            self._default = NOTHING
-
         self.instance_of = instance_of
 
         self.init_aliaser = init_aliaser
@@ -180,15 +187,6 @@ class Attribute(object):
 
     def __ne__(self, other):
         return not self == other
-
-    def __getattr__(self, name):
-        """
-        If no value has been set to _default, we need to call a factory.
-        """
-        if name == "_default" and self.default_factory:
-            return self.default_factory()
-        else:
-            raise AttributeError
 
     def __repr__(self):
         return (
@@ -400,49 +398,38 @@ def with_init(attrs, **kw):
     :param defaults: Default values if attributes are omitted on instantiation.
     :type defaults: ``dict`` or ``None``
     """
-    def characteristic_init(self, *args, **kw):
-        """
-        Attribute initializer automatically created by characteristic.
-
-        The original `__init__` method is renamed to `__original_init__` and
-        is called at the end with the initialized attributes removed from the
-        keyword arguments.
-        """
-        for a in attrs:
-            v = kw.pop(a._kw_name, NOTHING)
-            if v is NOTHING:
-                # Since ``a._default`` could be a property that calls
-                # a factory, we make this a separate step.
-                v = a._default
-            if v is NOTHING:
-                raise ValueError(
-                    "Missing keyword value for '{0}'.".format(a._kw_name)
-                )
-            if (
-                a.instance_of is not None
-                and not isinstance(v, a.instance_of)
-            ):
-                    raise TypeError(
-                        "Attribute '{0}' must be an instance of '{1}'."
-                        .format(a.name, a.instance_of.__name__)
-                    )
-            self.__characteristic_setattr__(a.name, v)
-        self.__original_init__(*args, **kw)
-
-    def wrap(cl):
-        cl.__original_init__ = cl.__init__
-        cl.__init__ = characteristic_init
-        # Sidestep immutability sentry completely if possible..
-        cl.__characteristic_setattr__ = getattr(
-            cl, "__original_setattr__", cl.__setattr__
-        )
-        return cl
-
     attrs = [attr
              for attr in _ensure_attributes(attrs,
                                             defaults=kw.get("defaults",
                                                             NOTHING))
              if attr.exclude_from_init is False]
+
+    # We cache the generated init methods for the same kinds of attributes.
+    sha1 = hashlib.sha1()
+    sha1.update(repr(attrs).encode("utf-8"))
+    unique_filename = "<characteristic generated init {0}>".format(
+        sha1.hexdigest()
+    )
+
+    script = _attrs_to_script(attrs)
+    locs = {}
+    bytecode = compile(script, unique_filename, "exec")
+    exec_(bytecode, {"NOTHING": NOTHING, "attrs": attrs}, locs)
+    init = locs["characteristic_init"]
+
+    def wrap(cl):
+        cl.__original_init__ = cl.__init__
+        # In order of debuggers like PDB being able to step through the code,
+        # we add a fake linecache entry.
+        linecache.cache[unique_filename] = (
+            len(script),
+            None,
+            script.splitlines(True),
+            unique_filename
+        )
+        cl.__init__ = init
+        return cl
+
     return wrap
 
 
@@ -581,11 +568,100 @@ def attributes(attrs, apply_with_cmp=True, apply_with_init=True,
             cl = with_repr(attrs)(cl)
         if apply_with_cmp is True:
             cl = with_cmp(attrs)(cl)
-        # Order matters here because with_init can optimize and side-step
-        # immutable's sentry function.
         if apply_immutable is True:
             cl = immutable(attrs)(cl)
         if apply_with_init is True:
             cl = with_init(attrs)(cl)
         return cl
     return wrap
+
+
+def _attrs_to_script(attrs):
+    """
+    Return a valid Python script of an initializer for *attrs*.
+    """
+    if all(a.default_value is NOTHING
+           and a.default_factory is None
+           and a.instance_of is None
+           for a in attrs) and not PY26:
+        # Simple version does not work with Python 2.6 because of
+        # http://bugs.python.org/issue10221
+        lines = _simple_init(attrs)
+    else:
+        lines = _verbose_init(attrs)
+
+    return """\
+def characteristic_init(self, *args, **kw):
+    '''
+    Attribute initializer automatically created by characteristic.
+
+    The original `__init__` method is renamed to `__original_init__` and
+    is called at the end with the initialized attributes removed from the
+    keyword arguments.
+    '''
+    {setters}
+    self.__original_init__(*args, **kw)
+""".format(setters="\n    ".join(lines))
+
+
+def _simple_init(attrs):
+    """
+    Create an init for *attrs* that doesn't care about defaults, default
+    factories, or argument validators.  This is a common case thus it's worth
+    optimizing for.
+    """
+    lines = ["try:"]
+    for a in attrs:
+        lines.append("    self.{a.name} = kw.pop('{a._kw_name}')".format(a=a))
+
+    lines += [
+        "except KeyError as e:",
+        "     raise ValueError(\"Missing keyword value for "
+        "'%s'.\" % (e.args[0],))"
+        .format(a=a),
+    ]
+    return lines
+
+
+def _verbose_init(attrs):
+    """
+    Create return a list of lines that initialize *attrs* while honoring
+    default values.
+    """
+    lines = []
+    for i, a in enumerate(attrs):
+        # attrs is passed into the the exec later to enable default_value
+        # and default_factory.  To find it, enumerate and 'i' are used.
+        lines.append(
+            "self.{a.name} = kw.pop('{a._kw_name}', {default})"
+            .format(
+                a=a,
+                # Save a lookup for the common case of no default value.
+                default="attrs[{i}].default_value".format(i=i)
+                if a.default_value is not NOTHING else "NOTHING"
+            )
+        )
+        if a.default_value is NOTHING:
+            lines.append("if self.{a.name} is NOTHING:".format(a=a))
+            if a.default_factory is None:
+                lines.append(
+                    "     raise ValueError(\"Missing keyword value for "
+                    "'{a._kw_name}'.\")".format(a=a),
+                )
+            else:
+                lines.append(
+                    "    self.{a.name} = attrs[{i}].default_factory()"
+                    .format(a=a, i=i)
+                )
+        if a.instance_of:
+            lines.append(
+                "if not isinstance(self.{a.name}, attrs[{i}].instance_of):\n"
+                .format(a=a, i=i)
+            )
+            lines.append(
+                "    raise TypeError(\"Attribute '{a.name}' must be an"
+                " instance of '{type_name}'.\")"
+                .format(a=a, type_name=a.instance_of.__name__)
+            )
+
+    return lines

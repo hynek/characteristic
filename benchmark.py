@@ -7,6 +7,13 @@ from __future__ import absolute_import, division, print_function
 from characteristic import attributes
 
 
+class Artisanal(object):
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
+
+
 @attributes(["a", "b", "c"])
 class NoDefaults(object):
     pass
@@ -15,6 +22,10 @@ class NoDefaults(object):
 @attributes(["a", "b", "c"], defaults={"c": 42})
 class Defaults(object):
     pass
+
+
+def bench_artisanal():
+    Artisanal(a=1, b=2, c=3)
 
 
 def bench_no_defaults():
@@ -33,7 +44,8 @@ def bench_both():
 if __name__ == "__main__":
     import timeit
 
-    for func in ["bench_no_defaults", "bench_defaults", "bench_both"]:
+    for func in ["bench_no_defaults", "bench_defaults", "bench_both",
+                 "bench_artisanal"]:
         print(
             func + ": ",
             timeit.timeit(func + "()",

@@ -30,6 +30,8 @@ Changes:
 
 - Attributes set by :func:`characteristic.attributes` are now stored on the class as well.
   [`20 <https://github.com/hynek/characteristic/pull/20>`_]
+- ``__init__`` methods that are created by :func:`characteristic.with_init` are now generated on the fly and optimized for each class.
+  [`9 <https://github.com/hynek/characteristic/pull/9>`_]
 
 
 ----
