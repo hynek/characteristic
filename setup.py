@@ -50,40 +50,41 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-setup(
-    name="characteristic",
-    version=find_version("characteristic.py"),
-    description="Python attributes without boilerplate.",
-    long_description=(read("README.rst") + "\n\n" +
-                      read("AUTHORS.rst")),
-    url="https://characteristic.readthedocs.org/",
-    license="MIT",
-    author="Hynek Schlawack",
-    author_email="hs@ox.cx",
-    py_modules=["characteristic", "test_characteristic"],
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "Natural Language :: English",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-    ],
-    install_requires=[
-    ],
-    tests_require=[
-        "pytest"
-    ],
-    cmdclass={
-        "test": PyTest,
-    },
-)
+if __name__ == "__main__":
+    setup(
+        name="characteristic",
+        version=find_version("characteristic.py"),
+        description="Python attributes without boilerplate.",
+        long_description=(read("README.rst") + "\n\n" +
+                          read("AUTHORS.rst")),
+        url="https://characteristic.readthedocs.org/",
+        license="MIT",
+        author="Hynek Schlawack",
+        author_email="hs@ox.cx",
+        py_modules=["characteristic", "test_characteristic"],
+        classifiers=[
+            "Development Status :: 5 - Production/Stable",
+            "Intended Audience :: Developers",
+            "Natural Language :: English",
+            "License :: OSI Approved :: MIT License",
+            "Operating System :: OS Independent",
+            "Programming Language :: Python",
+            "Programming Language :: Python :: 2",
+            "Programming Language :: Python :: 2.6",
+            "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.3",
+            "Programming Language :: Python :: 3.4",
+            "Programming Language :: Python :: Implementation :: CPython",
+            "Programming Language :: Python :: Implementation :: PyPy",
+            "Topic :: Software Development :: Libraries :: Python Modules",
+        ],
+        install_requires=[
+        ],
+        tests_require=[
+            "pytest"
+        ],
+        cmdclass={
+            "test": PyTest,
+        },
+    )
