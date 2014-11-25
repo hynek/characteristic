@@ -564,6 +564,16 @@ class TestWithInit(object):
             != C2.__init__.__code__.co_filename
         )
 
+    def test_no_attributes(self):
+        """
+        Specifying no attributes doesn't raise an exception.
+        """
+        @with_init([])
+        class C(object):
+            pass
+        C()
+
+
 
 class TestAttributes(object):
     def test_leaves_init_alone(self):

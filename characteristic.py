@@ -615,10 +615,10 @@ def _simple_init(attrs):
         lines.append("    self.{a.name} = kw.pop('{a._kw_name}')".format(a=a))
 
     lines += [
+        "    pass",
         "except KeyError as e:",
         "     raise ValueError(\"Missing keyword value for "
         "'%s'.\" % (e.args[0],))"
-        .format(a=a),
     ]
     return lines
 
