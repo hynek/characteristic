@@ -574,7 +574,6 @@ class TestWithInit(object):
         C()
 
 
-
 class TestAttributes(object):
     def test_leaves_init_alone(self):
         """
