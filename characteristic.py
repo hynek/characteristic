@@ -615,6 +615,8 @@ def _simple_init(attrs):
         lines.append("    self.{a.name} = kw.pop('{a._kw_name}')".format(a=a))
 
     lines += [
+        # We include "pass" here in case attrs is empty.  Otherwise the "try"
+        # suite is empty.
         "    pass",
         "except KeyError as e:",
         "     raise ValueError(\"Missing keyword value for "
