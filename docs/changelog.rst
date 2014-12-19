@@ -9,7 +9,7 @@ Versions are year-based with a strict backwards-compatibility policy.
 The third digit is only for regressions.
 
 
-14.3.0 (UNRELEASED)
+14.3.0 (2014-12-19)
 -------------------
 
 
