@@ -742,6 +742,15 @@ class TestAttributes(object):
             "attributes() got an unexpected keyword argument 'not_an_arg'",
         )
 
+    def test_no_attributes(self):
+        """
+        Specifying no attributes doesn't raise an exception.
+        """
+        @attributes([])
+        class C(object):
+            pass
+        C()
+
 
 class TestEnsureAttributes(object):
     def test_leaves_attribute_alone(self):
