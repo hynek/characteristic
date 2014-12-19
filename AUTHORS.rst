@@ -16,3 +16,4 @@ The following folks helped forming ``characteristic`` into what it is now:
 - `Jean-Paul Calderone <https://github.com/exarkun>`_
 - `Julian Berman <https://github.com/julian>`_
 - `Richard Wall <https://github.com/wallrj>`_
+- `Tom Prince <https://github.com/tomprince>`_

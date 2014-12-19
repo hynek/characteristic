@@ -28,7 +28,7 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-*none*
+- All decorators now gracefully accept empty attribute lists. [`22 <https://github.com/hynek/characteristic/pull/22>`_].
 
 
 ----
