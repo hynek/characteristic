@@ -87,4 +87,5 @@ if __name__ == "__main__":
         cmdclass={
             "test": PyTest,
         },
+        zip_safe=False,
     )
