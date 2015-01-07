@@ -58,4 +58,5 @@ setup(
     ],
     install_requires=[
     ],
+    zip_safe=False,
 )
