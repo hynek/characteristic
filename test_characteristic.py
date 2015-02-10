@@ -524,7 +524,8 @@ class TestWithInit(object):
         class C(object):
             pass
 
-        assert tuple == type(linecache.cache[C.__init__.__code__.co_filename])
+        assert isinstance(linecache.cache[C.__init__.__code__.co_filename],
+                          tuple)
 
     def test_linecache_attrs_unique(self):
         """
