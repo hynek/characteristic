@@ -64,7 +64,7 @@ The difference between namedtuple_\ s and classes decorated by ``characteristic`
    ... class C1(object):
    ...     def __init__(self):
    ...         if self.a >= 5:
-   ...             raise ValueError("'a' must be smaller 5!")
+   ...             raise ValueError("'a' must be smaller than 5!")
    ...     def print_a(self):
    ...         print self.a
    >>> @attributes([Attribute("a", instance_of=int)])
@@ -81,7 +81,7 @@ The difference between namedtuple_\ s and classes decorated by ``characteristic`
    >>> C1(a=5)
    Traceback (most recent call last):
       ...
-   ValueError: 'a' must be smaller 5!
+   ValueError: 'a' must be smaller than 5!
 
 
 …while namedtuple’s purpose is *explicitly* to behave like tuples:
