@@ -249,9 +249,12 @@ def _ensure_attributes(attrs, defaults):
 
 def with_cmp(attrs):
     """
-    A class decorator that adds comparison methods based on *attrs*.
+    A class decorator that adds comparison methods and a hashing method based on
+    *attrs*.
 
-    For that, each class is treated like a ``tuple`` of the values of *attrs*.
+    For that, each class is treated like a ``tuple`` of the values of *attrs*,
+    so objectA == objectB -> True and objectA.__hash__() == objectB.__hash() ->
+    True iff objectA's tuple of *attrs* == objectB's tuple of *attrs*.
     But only instances of *identical* classes are compared!
 
     :param attrs: Attributes to work with.
