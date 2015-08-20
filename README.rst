@@ -15,6 +15,10 @@ characteristic: Python attributes without boilerplate.
 
 .. begin
 
+.. warning::
+   Please note that characteristic is in a bugfix-only mode.
+   For new features please have a look at it's successor `attrs <https://attrs.readthedocs.org/>`_.
+
 
 ``characteristic`` is an `MIT <http://choosealicense.com/licenses/mit/>`_-licensed Python package with class decorators that ease the chores of implementing the most common attribute-related object protocols.
 
