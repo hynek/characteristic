@@ -191,7 +191,7 @@ class TestWithCmp(object):
 
     def test_unequal_different_class(self):
         """
-        Unequal objects of differnt type are detected even if their attributes
+        Unequal objects of different type are detected even if their attributes
         match.
         """
         class NotCmpC(object):
